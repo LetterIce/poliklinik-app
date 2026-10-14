@@ -100,8 +100,13 @@
             </a>
             <a href="{{ route('pasien.daftar') }}"
                 class="{{ $baseLink }} {{ request()->routeIs('pasien.daftar') ? $active : $inactive }}">
-                <i class="fas fa-notes-medical w-4 text-center"></i>
+                <i class="fas fa-calendar-plus w-4 text-center"></i>
                 Pendaftaran Periksa
+            </a>
+            <a href="{{ route('pasien.riwayat-daftar.index') }}"
+                class="{{ $baseLink }} {{ request()->routeIs('pasien.riwayat-daftar.*') ? $active : $inactive }}">
+                <i class="fas fa-clock-rotate-left w-4 text-center"></i>
+                Riwayat Pendaftaran
             </a>
             <a href="{{ route('pasien.pembayaran.index') }}"
                 class="{{ $baseLink }} {{ request()->routeIs('pasien.pembayaran.*') ? $active : $inactive }}">

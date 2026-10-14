@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\PembayaranController as AdminPembayaranController
 use App\Http\Controllers\Pasien\DashboardController as PasienDashboardController;
 use App\Http\Controllers\Pasien\PoliController as PasienPoliController;
 use App\Http\Controllers\Pasien\PembayaranController as PasienPembayaranController;
+use App\Http\Controllers\Pasien\RiwayatPendaftaranController as PasienRiwayatPendaftaranController;
 use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
@@ -76,6 +77,10 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () 
 
     Route::get('/daftar', [PasienPoliController::class, 'get'])->name('pasien.daftar');
     Route::post('/daftar', [PasienPoliController::class, 'submit'])->name('pasien.daftar.submit');
+
+    // Riwayat Pendaftaran Poli
+    Route::get('/riwayat-daftar', [PasienRiwayatPendaftaranController::class, 'index'])->name('pasien.riwayat-daftar.index');
+    Route::get('/riwayat-daftar/{id}', [PasienRiwayatPendaftaranController::class, 'show'])->name('pasien.riwayat-daftar.show');
 
     // Pembayaran Pasien
     Route::get('/pembayaran', [PasienPembayaranController::class, 'index'])->name('pasien.pembayaran.index');
