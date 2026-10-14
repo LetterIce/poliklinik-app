@@ -9,11 +9,17 @@
             <p class="text-sm text-slate-500 mt-1">Kelola daftar obat, kemasan, dan harga untuk pelayanan medis.</p>
         </div>
 
-        <a href="{{ route('obat.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/90 
-                  text-white rounded-xl text-sm font-semibold shadow-sm transition">
-            <i class="fas fa-plus text-sm"></i>
-            Tambah Obat
-        </a>
+        <div class="flex items-center gap-2.5">
+            <a href="{{ route('obat.export') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-sm transition">
+                <i class="fas fa-file-excel text-sm"></i>
+                Export Excel
+            </a>
+            <a href="{{ route('obat.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#2d4499] hover:bg-[#1e2d6b] 
+                      text-white rounded-xl text-sm font-semibold shadow-sm transition">
+                <i class="fas fa-plus text-sm"></i>
+                Tambah Obat
+            </a>
+        </div>
     </div>
 
     {{-- Alert Success / Message --}}
@@ -45,6 +51,7 @@
                             <th class="px-6 py-4 w-12 text-center">No</th>
                             <th class="px-6 py-4">Nama Obat</th>
                             <th class="px-6 py-4">Kemasan</th>
+                            <th class="px-6 py-4 text-center">Stok</th>
                             <th class="px-6 py-4">Harga</th>
                             <th class="px-6 py-4 text-right">Aksi</th>
                         </tr>
@@ -68,7 +75,13 @@
                                 </span>
                             </td>
 
-                            <td class="px-6 py-4 font-semibold text-emerald-600">
+                            <td class="px-6 py-4 text-center">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold {{ ($obat->stok ?? 0) > 10 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' }}">
+                                    {{ $obat->stok ?? 0 }}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4 font-semibold text-emerald-600 font-mono">
                                 Rp {{ number_format($obat->harga, 0, ',', '.') }}
                             </td>
 

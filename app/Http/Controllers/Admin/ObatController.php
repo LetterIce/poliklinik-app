@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ObatExport;
 use App\Http\Controllers\Controller;
 use App\Models\Obat;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ObatController extends Controller
 {
+    public function export()
+    {
+        return Excel::download(new ObatExport, 'data_obat_' . date('Ymd_His') . '.xlsx');
+    }
+
     /**
      * Display a listing of the resource.
      */

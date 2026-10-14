@@ -39,6 +39,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
+    // Export Excel Admin
+    Route::get('/dokter/export/excel', [DokterController::class, 'export'])->name('dokter.export');
+    Route::get('/pasien/export/excel', [PasienController::class, 'export'])->name('pasien.export');
+    Route::get('/obat/export/excel', [ObatController::class, 'export'])->name('obat.export');
+
     Route::resource('polis', AdminPoliController::class);
     Route::resource('dokter', DokterController::class);
     Route::resource('pasien', PasienController::class);
@@ -55,6 +60,10 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->group(function () 
     Route::get('/dashboard', function () {
         return view('dokter.dashboard');
     })->name('dokter.dashboard');
+
+    // Export Excel Dokter
+    Route::get('/jadwal-periksa/export/excel', [JadwalPeriksaController::class, 'export'])->name('jadwal-periksa.export');
+    Route::get('/riwayat-pasien/export/excel', [RiwayatPasienController::class, 'export'])->name('riwayat-pasien.export');
 
     Route::resource('jadwal-periksa', JadwalPeriksaController::class);
 
