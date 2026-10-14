@@ -45,7 +45,8 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () 
         return view('pasien.dashboard');
     })->name('pasien.dashboard');
 
-    Route::get('/daftar', function () {
-        return 'Halaman Pendaftaran Periksa';
-    })->name('pasien.daftar');
+    Route::get('/daftar', [PasienPoliController::class, 'get'])->name('pasien.daftar');
+
+    Route::post('/daftar', [PasienPoliController::class, 'submit'])
+        ->name('pasien.daftar.submit');
 });
