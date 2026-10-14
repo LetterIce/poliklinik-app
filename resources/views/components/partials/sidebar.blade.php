@@ -110,8 +110,8 @@
             </a>
             <a href="{{ route('pasien.pembayaran.index') }}"
                 class="{{ $baseLink }} {{ request()->routeIs('pasien.pembayaran.*') ? $active : $inactive }}">
-                <i class="fas fa-receipt w-4 text-center"></i>
-                Riwayat Pembayaran
+                <i class="fas fa-money-bill-wave w-4 text-center"></i>
+                Pembayaran
             </a>
 
         </div>

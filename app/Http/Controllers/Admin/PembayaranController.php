@@ -27,9 +27,10 @@ class PembayaranController extends Controller
             $query->where('status', $status);
         }
 
+        $countMenunggu = Pembayaran::where('status', 'menunggu_verifikasi')->count();
         $pembayarans = $query->paginate(15)->withQueryString();
 
-        return view('admin.pembayaran.index', compact('pembayarans', 'status'));
+        return view('admin.pembayaran.index', compact('pembayarans', 'status', 'countMenunggu'));
     }
 
     /**

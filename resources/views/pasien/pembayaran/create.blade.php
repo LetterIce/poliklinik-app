@@ -10,7 +10,7 @@
             <h2 class="text-2xl font-bold text-slate-800">
                 Upload Bukti Pembayaran
             </h2>
-            <p class="text-sm text-slate-500 mt-0.5">Kirim bukti transfer pembayaran tagihan pemeriksaan medis Anda.</p>
+            <p class="text-sm text-slate-500 mt-0.5">Kirim foto bukti transfer pembayaran hasil pemeriksaan medis Anda.</p>
         </div>
     </div>
 
@@ -18,7 +18,7 @@
 
         {{-- Left Form: Upload --}}
         <div class="lg:col-span-2">
-            <div class="card bg-base-100 shadow-md rounded-2xl border border-slate-200">
+            <div class="card bg-base-100 shadow-md rounded-2xl border border-slate-200 overflow-hidden">
                 <div class="card-body p-7">
 
                     <form action="{{ route('pasien.pembayaran.store', $periksa->id) }}" method="POST" enctype="multipart/form-data">
@@ -27,7 +27,7 @@
                         {{-- Metode Pembayaran --}}
                         <div class="form-control mb-5">
                             <label class="label pb-1">
-                                <span class="text-sm font-semibold text-slate-700">Metode Pembayaran <span class="text-red-500">*</span></span>
+                                <span class="text-sm font-semibold text-slate-700">Metode Pembayaran Transfer <span class="text-red-500">*</span></span>
                             </label>
                             <select name="metode_pembayaran" required
                                 class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#2d4499] focus:outline-none">
@@ -38,29 +38,46 @@
                             </select>
                         </div>
 
-                        {{-- File Bukti Pembayaran --}}
+                        {{-- File Bukti Pembayaran dengan Live Preview --}}
                         <div class="form-control mb-6">
                             <label class="label pb-1">
-                                <span class="text-sm font-semibold text-slate-700">Unggah Foto / PDF Bukti Bayar <span class="text-red-500">*</span></span>
+                                <span class="text-sm font-semibold text-slate-700">Foto Bukti Transfer / Pembayaran <span class="text-red-500">*</span></span>
                             </label>
-                            <input type="file" name="bukti_bayar" accept="image/jpeg,image/png,image/jpg,application/pdf" required
-                                class="w-full file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#2d4499] hover:file:bg-blue-100 border border-slate-300 rounded-xl text-sm p-1.5 focus:border-[#2d4499] focus:outline-none @error('bukti_bayar') border-red-500 @enderror">
-                            <p class="text-xs text-slate-400 mt-1.5">Format file: JPG, PNG, atau PDF. Ukuran file maksimal 3 MB.</p>
+
+                            {{-- Dropzone / Upload Area --}}
+                            <div class="mt-1">
+                                <input type="file" id="bukti_bayar_input" name="bukti_bayar" accept="image/jpeg,image/png,image/jpg,application/pdf" required
+                                    class="w-full file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#2d4499] hover:file:bg-blue-100 border border-slate-300 rounded-xl text-sm p-1.5 focus:border-[#2d4499] focus:outline-none @error('bukti_bayar') border-red-500 @enderror">
+                                <p class="text-xs text-slate-400 mt-1.5">Format file: JPG, PNG, atau PDF. Ukuran berkas maksimal 3 MB.</p>
+                            </div>
+
                             @error('bukti_bayar')
                             <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
                             @enderror
+
+                            {{-- Container Live Preview --}}
+                            <div id="imagePreviewContainer" class="mt-4 hidden">
+                                <span class="text-xs font-semibold text-slate-600 block mb-2">Pratinjau Bukti Transfer:</span>
+                                <div class="relative inline-block border-2 border-dashed border-blue-200 bg-slate-50 rounded-xl p-2 max-w-sm">
+                                    <img id="imagePreview" src="#" alt="Pratinjau Bukti" class="max-h-60 rounded-lg object-contain">
+                                    <div id="pdfNotice" class="hidden p-4 text-center text-xs text-slate-600">
+                                        <i class="fas fa-file-pdf text-red-500 text-3xl mb-1 block"></i>
+                                        Dokumen PDF dipilih
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- Tombol Submit --}}
-                        <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
+                        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                             <a href="{{ route('pasien.pembayaran.index') }}"
                                 class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold transition">
                                 Batal
                             </a>
                             <button type="submit"
-                                class="px-6 py-2.5 rounded-xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white font-semibold text-sm shadow-sm transition">
-                                <i class="fas fa-paper-plane mr-1.5"></i>
-                                Kirim Bukti Pembayaran
+                                class="px-6 py-2.5 rounded-xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white font-semibold text-sm shadow-sm transition inline-flex items-center gap-2">
+                                <i class="fas fa-cloud-arrow-up text-sm"></i>
+                                <span>Upload & Kirim Bukti</span>
                             </button>
                         </div>
 
@@ -104,7 +121,7 @@
                 </div>
 
                 <div class="border-t border-dashed border-slate-200 pt-4">
-                    <span class="text-xs text-slate-500 uppercase font-bold block mb-1">Total Pembayaran</span>
+                    <span class="text-xs text-slate-500 uppercase font-bold block mb-1">Total Tagihan Harus Dibayar</span>
                     <div class="text-2xl font-black text-[#2d4499] font-mono">
                         Rp {{ number_format($periksa->biaya_periksa, 0, ',', '.') }}
                     </div>
@@ -112,11 +129,40 @@
 
                 <div class="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-[11px] text-blue-900 leading-relaxed">
                     <i class="fas fa-info-circle mr-1 text-[#2d4499]"></i>
-                    Setelah mengunggah bukti bayar, notifikasi otomatis akan terkirim ke dokter pemeriksa dan pembayaran Anda akan diverifikasi oleh Admin.
+                    Setelah mengunggah bukti bayar, notifikasi otomatis terkirim ke dokter pemeriksa dan status akan dikonfirmasi lunas oleh Admin poliklinik.
                 </div>
             </div>
         </div>
 
     </div>
+
+    {{-- Script Live Preview --}}
+    <script>
+        const fileInput = document.getElementById('bukti_bayar_input');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const imgPreview = document.getElementById('imagePreview');
+        const pdfNotice = document.getElementById('pdfNotice');
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                previewContainer.classList.remove('hidden');
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        imgPreview.src = evt.target.result;
+                        imgPreview.classList.remove('hidden');
+                        pdfNotice.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file.type === 'application/pdf') {
+                    imgPreview.classList.add('hidden');
+                    pdfNotice.classList.remove('hidden');
+                }
+            } else {
+                previewContainer.classList.add('hidden');
+            }
+        });
+    </script>
 
 </x-layouts.app>
