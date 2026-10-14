@@ -26,7 +26,51 @@
     </div>
     @endif
 
-    <div class="card bg-base-100 shadow-md rounded-2xl border border-slate-200 max-w-2xl">
+    @if(isset($antrianAktif) && $antrianAktif)
+    {{-- Banner Antrean Aktif (Mencegah Daftar Poli Kedua) --}}
+    <div class="card bg-amber-50 border border-amber-200 rounded-2xl shadow-sm mb-6 max-w-2xl p-6">
+        <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 text-lg">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="font-bold text-amber-900 text-base">Anda Masih Memiliki Antrean Aktif</h3>
+                <p class="text-xs text-amber-800 mt-1 leading-relaxed">
+                    Sesuai ketentuan, pasien tidak dapat mendaftar ke dua poli sekaligus. Anda hanya dapat mendaftar kembali setelah pemeriksaan saat ini selesai dilayani oleh dokter.
+                </p>
+
+                <div class="mt-4 p-4 bg-white/80 rounded-xl border border-amber-200/60 grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <span class="text-slate-400 block font-medium">Poli Tujuan:</span>
+                        <span class="font-bold text-slate-800 text-sm">{{ optional($antrianAktif->jadwalPeriksa->dokter->poli)->nama_poli ?? '-' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-medium">Dokter Pemeriksa:</span>
+                        <span class="font-bold text-slate-800 text-sm">{{ optional($antrianAktif->jadwalPeriksa->dokter)->nama ?? '-' }}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-medium">Jadwal:</span>
+                        <span class="font-semibold text-slate-700">{{ $antrianAktif->jadwalPeriksa->hari }} ({{ date('H:i', strtotime($antrianAktif->jadwalPeriksa->jam_mulai)) }} - {{ date('H:i', strtotime($antrianAktif->jadwalPeriksa->jam_selesai)) }})</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-medium">Nomor Antrean Anda:</span>
+                        <span class="font-black text-amber-700 text-sm">#{{ $antrianAktif->no_antrian }}</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex items-center gap-3">
+                    <a href="{{ route('pasien.dashboard') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-[#2d4499] hover:bg-[#1e2d6b] text-white font-semibold rounded-xl text-xs shadow-sm transition">
+                        <i class="fas fa-gauge-high text-xs"></i>
+                        <span>Pantau Antrean di Dashboard</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <div class="card bg-base-100 shadow-md rounded-2xl border border-slate-200 max-w-2xl {{ (isset($antrianAktif) && $antrianAktif) ? 'opacity-60 pointer-events-none select-none' : '' }}">
         <div class="card-body p-7">
 
             <form action="{{ route('pasien.daftar.submit') }}" method="POST">
@@ -126,7 +170,7 @@
                 {{-- Tombol Submit --}}
                 <div class="flex items-center justify-end gap-3 pt-2">
                     <button type="submit"
-                        class="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white font-semibold text-sm shadow-sm transition">
+                        class="px-6 py-2.5 rounded-lg bg-[#2d4499] hover:bg-[#1e2d6b] text-white font-semibold text-sm shadow-sm transition">
                         <i class="fas fa-paper-plane mr-1.5"></i>
                         Daftar Sekarang
                     </button>
