@@ -235,7 +235,29 @@
         document.addEventListener('DOMContentLoaded', function () {
             const statusUrl = "{{ route('pasien.antrian.status') }}";
 
-            // Fungsi untuk update status antrian tanpa reload halaman
+            // Helper untuk mengupdate badge Sedang Dilayani di setiap baris tabel
+            function updateJadwalBadges(jadwals) {
+                if (!jadwals || !Array.isArray(jadwals)) return;
+                jadwals.forEach(item => {
+                    const badge = document.querySelector(`[data-jadwal-badge="${item.id}"]`);
+                    if (badge) {
+                        const val = String(item.sedang_dilayani);
+                        if (badge.textContent.trim() !== val) {
+                            badge.textContent = val;
+                            if (val !== '-' && val !== 'Selesai') {
+                                badge.className = "inline-flex items-center justify-center min-w-[50px] px-3 py-1 rounded-full text-xs font-black bg-[#2d4499] text-white shadow-sm transition-all duration-300 scale-125";
+                                setTimeout(() => {
+                                    badge.classList.remove('scale-125');
+                                }, 400);
+                            } else {
+                                badge.className = "inline-flex items-center justify-center min-w-[50px] px-3 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-500 transition-all duration-300";
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Fungsi untuk update status antrian melalui API polling (sebagai pendukung & fallback)
             async function fetchLiveQueueStatus() {
                 try {
                     const response = await fetch(statusUrl, {
@@ -265,7 +287,6 @@
                     } else {
                         // Jika pasien sebelumnya memiliki antrian tapi sekarang sudah selesai diperiksa
                         if (sedangDilayaniEl) {
-                            // Refresh container banner jika status aktif berubah
                             const container = document.getElementById('antrian-banner-container');
                             if (container && !container.dataset.refreshed) {
                                 container.dataset.refreshed = "true";
@@ -287,34 +308,58 @@
                         }
                     }
 
-                    // 2. Update Badge "Sedang Dilayani" di Setiap Baris Tabel Jadwal
-                    if (data.jadwals && Array.isArray(data.jadwals)) {
-                        data.jadwals.forEach(item => {
-                            const badge = document.querySelector(`[data-jadwal-badge="${item.id}"]`);
-                            if (badge) {
-                                const val = String(item.sedang_dilayani);
-                                if (badge.textContent.trim() !== val) {
-                                    badge.textContent = val;
-                                    if (val !== '-' && val !== 'Selesai') {
-                                        badge.className = "inline-flex items-center justify-center min-w-[50px] px-3 py-1 rounded-full text-xs font-black bg-[#2d4499] text-white shadow-sm transition-all duration-300 scale-110";
-                                        setTimeout(() => {
-                                            badge.classList.remove('scale-110');
-                                        }, 400);
-                                    } else {
-                                        badge.className = "inline-flex items-center justify-center min-w-[50px] px-3 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-500 transition-all duration-300";
-                                    }
-                                }
-                            }
-                        });
-                    }
+                    // 2. Update Badge di Setiap Baris Tabel Jadwal
+                    updateJadwalBadges(data.jadwals);
 
                 } catch (error) {
-                    // Silently ignore network hiccup to prevent interrupting user
+                    // Silently ignore network error
                 }
             }
 
-            // Jalankan polling setiap 4 detik untuk update realtime tanpa reload
-            setInterval(fetchLiveQueueStatus, 4000);
+            // ========================================================
+            // 3. REAL-TIME WEBSOCKET LISTENER DENGAN LARAVEL ECHO & REVERB
+            // ========================================================
+            function initEchoListener() {
+                if (window.Echo) {
+                    console.log('🔌 [Laravel Echo] Menghubungkan ke WebSocket channel: antrian-channel');
+
+                    window.Echo.channel('antrian-channel')
+                        .listen('.AntrianUpdated', (event) => {
+                            console.log('⚡ [Real-Time WebSocket] Event Antrian Diterima:', event);
+
+                            // Update live tabel antrian untuk semua jadwal poli
+                            if (event.jadwals) {
+                                updateJadwalBadges(event.jadwals);
+                            }
+
+                            // Update banner antrian aktif jika jadwal cocok
+                            @if(isset($antrianAktif) && $antrianAktif)
+                            const activeJadwalId = "{{ $antrianAktif->id_jadwal }}";
+                            if (String(event.id_jadwal) === String(activeJadwalId) && event.nomor_sedang_dilayani) {
+                                const sedangDilayaniEl = document.getElementById('active-sedang-dilayani');
+                                if (sedangDilayaniEl) {
+                                    sedangDilayaniEl.textContent = event.nomor_sedang_dilayani;
+                                    sedangDilayaniEl.classList.add('scale-125', 'text-emerald-500');
+                                    setTimeout(() => {
+                                        sedangDilayaniEl.classList.remove('scale-125', 'text-emerald-500');
+                                    }, 600);
+                                }
+                            }
+                            @endif
+
+                            // Sinkronkan status lengkap
+                            fetchLiveQueueStatus();
+                        });
+                } else {
+                    // Coba lagi setelah beberapa milidetik jika bundle Echo masih loading
+                    setTimeout(initEchoListener, 300);
+                }
+            }
+
+            initEchoListener();
+
+            // Jalankan polling periodik sebagai fallback ketahanan koneksi
+            setInterval(fetchLiveQueueStatus, 6000);
         });
     </script>
     @endpush

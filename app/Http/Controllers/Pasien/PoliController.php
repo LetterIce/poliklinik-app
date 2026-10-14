@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pasien;
 
+use App\Events\AntrianUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\DaftarPoli;
 use App\Models\JadwalPeriksa;
@@ -61,6 +62,9 @@ class PoliController extends Controller
             'keluhan' => $request->keluhan,
             'no_antrian' => $jumlahSudahDaftar + 1,
         ]);
+
+        // Broadcast real-time antrian via Reverb
+        broadcast(new AntrianUpdated($request->id_jadwal));
 
         return redirect()
             ->route('pasien.dashboard')

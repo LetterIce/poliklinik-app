@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dokter;
 
+use App\Events\AntrianUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\DaftarPoli;
 use App\Models\DetailPeriksa;
@@ -26,10 +27,30 @@ class PeriksaPasienController extends Controller
         return view('dokter.periksa-pasien.index', compact('daftarPasien'));
     }
 
+    /**
+     * Panggil antrean pasien secara real-time via WebSocket Reverb
+     */
+    public function panggilAntrian($id)
+    {
+        $daftarPoli = DaftarPoli::with(['pasien', 'jadwalPeriksa.dokter.poli'])->findOrFail($id);
+
+        broadcast(new AntrianUpdated(
+            $daftarPoli->id_jadwal,
+            $daftarPoli->no_antrian,
+            "Nomor antrean {$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) sedang dipanggil."
+        ));
+
+        return redirect()->back()->with('success', "Nomor antrean #{$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) berhasil dipanggil ke ruang periksa!");
+    }
+
     public function create($id)
     {
-        $daftarPoli = DaftarPoli::with('pasien')->findOrFail($id);
+        $daftarPoli = DaftarPoli::with(['pasien', 'jadwalPeriksa.dokter.poli'])->findOrFail($id);
         $obats = Obat::all();
+
+        // Broadcast bahwa nomor antrean ini sedang dipanggil/dilayani
+        broadcast(new AntrianUpdated($daftarPoli->id_jadwal, $daftarPoli->no_antrian));
+
         return view('dokter.periksa-pasien.create', compact('obats', 'id', 'daftarPoli'));
     }
 
@@ -57,6 +78,18 @@ class PeriksaPasienController extends Controller
                     'id_obat' => $idObat,
                 ]);
             }
+        }
+
+        // Cari nomor antrean berikutnya yang belum diperiksa pada jadwal ini
+        $daftarPoli = DaftarPoli::find($request->id_daftar_poli);
+        if ($daftarPoli) {
+            $nextNomor = DaftarPoli::where('id_jadwal', $daftarPoli->id_jadwal)
+                ->doesntHave('periksas')
+                ->orderBy('no_antrian', 'asc')
+                ->value('no_antrian');
+
+            // Broadcast real-time update ke dashboard pasien via Reverb
+            broadcast(new AntrianUpdated($daftarPoli->id_jadwal, $nextNomor ?? 'Selesai'));
         }
 
         return redirect()

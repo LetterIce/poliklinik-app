@@ -101,11 +101,21 @@
                                         Selesai
                                     </button>
                                 @else
-                                    <a href="{{ route('periksa-pasien.create', $daftar->id) }}"
-                                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-semibold shadow-sm transition">
-                                        <i class="fas fa-stethoscope text-xs"></i>
-                                        Periksa
-                                    </a>
+                                    <div class="inline-flex items-center gap-2">
+                                        <form action="{{ route('periksa-pasien.panggil', $daftar->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" title="Panggil Pasien secara Real-Time via Reverb"
+                                                class="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold shadow-sm transition cursor-pointer">
+                                                <i class="fas fa-bullhorn text-xs"></i>
+                                                Panggil
+                                            </button>
+                                        </form>
+                                        <a href="{{ route('periksa-pasien.create', $daftar->id) }}"
+                                            class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#2d4499] hover:bg-[#1e2d6b] text-white rounded-lg text-xs font-semibold shadow-sm transition">
+                                            <i class="fas fa-stethoscope text-xs"></i>
+                                            Periksa
+                                        </a>
+                                    </div>
                                 @endif
                             </td>
                         </tr>
