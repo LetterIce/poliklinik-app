@@ -28,8 +28,9 @@ class PeriksaPasienController extends Controller
 
     public function create($id)
     {
+        $daftarPoli = DaftarPoli::with('pasien')->findOrFail($id);
         $obats = Obat::all();
-        return view('dokter.periksa-pasien.create', compact('obats', 'id'));
+        return view('dokter.periksa-pasien.create', compact('obats', 'id', 'daftarPoli'));
     }
 
     public function store(Request $request)
