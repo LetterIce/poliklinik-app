@@ -3,7 +3,7 @@
     {{-- ================= BRAND ================= --}}
     <div class="px-5 py-5 border-b border-white/10">
         <div class="flex items-center gap-3">
-            <img src="{{ asset('images/logo-bengkot.png') }}" class="w-10 h-10 rounded-xl object-cover">
+            <img src="{{ asset('images/gambar.jpg') }}" class="w-10 h-10 rounded-xl object-cover">
 
             <div>
                 <div class="font-bold text-white text-lg leading-tight">
@@ -123,13 +123,13 @@
                 <i class="fas fa-calendar-days w-4 text-center"></i>
                 Jadwal Periksa
             </a>
-            <a href="{{route('periksa-pasien.index') }}"
-                class="{{ $baseLink }} {{request()->routeIs('periksa-pasien.*') ? $active : $inactive }}">
+            <a href="{{ Route::has('periksa-pasien.index') ? route('periksa-pasien.index') : '#' }}"
+                class="{{ $baseLink }} {{ request()->routeIs('periksa-pasien.*') ? $active : $inactive }}">
                 <i class="fas fa-notes-medical w-4 text-center"></i>
                 Periksa Pasien
             </a>
-            <a href="{{route('riwayat-pasien.index') }}"
-                class="{{ $baseLink }} {{request()->routeIs('riwayat-pasien.*') ? $active : $inactive }}">
+            <a href="{{ Route::has('riwayat-pasien.index') ? route('riwayat-pasien.index') : '#' }}"
+                class="{{ $baseLink }} {{ request()->routeIs('riwayat-pasien.*') ? $active : $inactive }}">
                 <i class="fas fa-clock-rotate-left w-4 text-center"></i>
                 Riwayat Pasien
             </a>
