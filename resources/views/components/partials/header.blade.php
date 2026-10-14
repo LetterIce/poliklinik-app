@@ -127,25 +127,50 @@
     </div>
     @endauth
 
-    {{-- User Info --}}
-    <div class="flex items-center gap-3">
+    {{-- User Profile Dropdown --}}
+    <div class="dropdown dropdown-end">
+        <button tabindex="0" role="button" class="flex items-center gap-3 p-1 rounded-xl hover:bg-slate-100 transition cursor-pointer">
+            <div class="text-right hidden sm:block">
+                <div class="text-sm font-semibold leading-tight text-slate-800">
+                    {{ auth()->user()->nama ?? 'Pengguna' }}
+                </div>
+                <div class="text-xs text-slate-400 leading-tight capitalize">
+                    {{ auth()->user()->role ?? 'User' }}
+                </div>
+            </div>
 
-        <div class="text-right hidden sm:block">
-            <div class="text-sm font-semibold leading-tight">
-                {{ auth()->user()->nama ?? 'Pengguna' }}
+            <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-[#2d4499] text-white flex items-center justify-center font-bold shadow-sm">
+                    <span class="text-sm font-semibold leading-none">
+                        {{ strtoupper(substr(auth()->user()->nama ?? 'U', 0, 1)) }}
+                    </span>
+                </div>
             </div>
-            <div class="text-xs text-base-content/50 leading-tight capitalize">
-                {{ auth()->user()->role ?? 'Admin' }}
-            </div>
-        </div>
+            <i class="fas fa-chevron-down text-[10px] text-slate-400 hidden sm:block"></i>
+        </button>
 
-        <div class="avatar">
-            <div class="w-10 h-10 rounded-full bg-primary text-primary-content flex items-center justify-center font-bold">
-                <span class="text-sm font-semibold leading-none">
-                    {{ strtoupper(substr(auth()->user()->nama ?? 'U', 0, 1)) }}
-                </span>
-            </div>
-        </div>
+        <ul tabindex="0" class="dropdown-content z-[100] menu p-2 shadow-xl bg-base-100 rounded-2xl border border-slate-200 w-56 mt-2">
+            <li class="menu-title px-4 py-2 border-b border-slate-100">
+                <span class="text-xs font-semibold text-slate-400">Akun Pengguna</span>
+                <span class="text-xs font-bold text-slate-800 truncate block">{{ auth()->user()->email ?? '-' }}</span>
+            </li>
+            <li>
+                <a href="{{ route('profile.index') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-[#2d4499] rounded-xl transition">
+                    <i class="fas fa-user-gear w-4 text-center"></i>
+                    <span>Profil & Password</span>
+                </a>
+            </li>
+            <li class="border-t border-slate-100 my-1"></li>
+            <li>
+                <form method="POST" action="/logout" class="p-0">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition">
+                        <i class="fas fa-right-from-bracket w-4 text-center"></i>
+                        <span>Keluar</span>
+                    </button>
+                </form>
+            </li>
+        </ul>
     </div>
 
 </header>

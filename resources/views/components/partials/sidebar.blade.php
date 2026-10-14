@@ -153,8 +153,14 @@
     </div>
 
 
-    {{-- ================= LOGOUT ================= --}}
-    <div class="p-4 border-t border-white/10">
+    {{-- ================= PROFILE & LOGOUT ================= --}}
+    <div class="p-4 border-t border-white/10 space-y-2">
+        <a href="{{ route('profile.index') }}"
+            class="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-lg {{ request()->routeIs('profile.*') ? 'bg-white/20 text-white font-semibold' : 'text-indigo-100 hover:bg-white/10' }} text-sm transition-all">
+            <i class="fas fa-user-gear w-4 text-center"></i>
+            <span>Profil & Password</span>
+        </a>
+
         <form method="POST" action="/logout">
             @csrf
             <button type="submit"

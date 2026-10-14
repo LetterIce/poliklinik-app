@@ -14,6 +14,7 @@ use App\Http\Controllers\Pasien\DashboardController as PasienDashboardController
 use App\Http\Controllers\Pasien\PoliController as PasienPoliController;
 use App\Http\Controllers\Pasien\PembayaranController as PasienPembayaranController;
 use App\Http\Controllers\Pasien\RiwayatPendaftaranController as PasienRiwayatPendaftaranController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
@@ -26,8 +27,13 @@ Route::get('/register', [AuthController::class, 'showRegister']);
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ================= SHARED AUTH ROUTES (NOTIFIKASI) =================
+// ================= SHARED AUTH ROUTES (SEMUA ROLE: ADMIN, DOKTER, PASIEN) =================
 Route::middleware('auth')->group(function () {
+    // Profil & Ganti Password
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+
+    // Notifikasi
     Route::get('/notifikasi', [NotificationController::class, 'index'])->name('notifikasi.index');
     Route::post('/notifikasi/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifikasi.markAllAsRead');
     Route::post('/notifikasi/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifikasi.markAsRead');
