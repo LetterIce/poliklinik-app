@@ -12,6 +12,8 @@
     --font-sans: 'Figtree', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
     --font-serif: 'Instrument Serif', serif;
     --sidebar-w: 260px;
+    --color-primary: #2d4499;
+    --color-primary-hover: #1e2d6b;
 }
 
 /* 3. Custom Utilities & Component Styles */
