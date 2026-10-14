@@ -9,7 +9,11 @@ use App\Http\Controllers\Admin\ObatController;
 use App\Http\Controllers\Dokter\JadwalPeriksaController;
 use App\Http\Controllers\Dokter\PeriksaPasienController;
 use App\Http\Controllers\Dokter\RiwayatPasienController;
+use App\Http\Controllers\Admin\PembayaranController as AdminPembayaranController;
+use App\Http\Controllers\Pasien\DashboardController as PasienDashboardController;
 use App\Http\Controllers\Pasien\PoliController as PasienPoliController;
+use App\Http\Controllers\Pasien\PembayaranController as PasienPembayaranController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,6 +25,13 @@ Route::get('/register', [AuthController::class, 'showRegister']);
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// ================= SHARED AUTH ROUTES (NOTIFIKASI) =================
+Route::middleware('auth')->group(function () {
+    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('notifikasi.index');
+    Route::post('/notifikasi/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifikasi.markAllAsRead');
+    Route::post('/notifikasi/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifikasi.markAsRead');
+});
+
 // ================= ADMIN ROUTES =================
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
@@ -31,6 +42,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::resource('dokter', DokterController::class);
     Route::resource('pasien', PasienController::class);
     Route::resource('obat', ObatController::class);
+
+    // Manajemen Pembayaran
+    Route::get('/pembayaran', [AdminPembayaranController::class, 'index'])->name('admin.pembayaran.index');
+    Route::post('/pembayaran/{id}/verifikasi', [AdminPembayaranController::class, 'verifikasi'])->name('admin.pembayaran.verifikasi');
+    Route::post('/pembayaran/{id}/tolak', [AdminPembayaranController::class, 'tolak'])->name('admin.pembayaran.tolak');
 });
 
 // ================= DOKTER ROUTES =================
@@ -55,12 +71,14 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->group(function () 
 
 // ================= PASIEN ROUTES =================
 Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('pasien.dashboard');
-    })->name('pasien.dashboard');
+    Route::get('/dashboard', [PasienDashboardController::class, 'index'])->name('pasien.dashboard');
+    Route::get('/antrian-status', [PasienDashboardController::class, 'statusAntrian'])->name('pasien.antrian.status');
 
     Route::get('/daftar', [PasienPoliController::class, 'get'])->name('pasien.daftar');
+    Route::post('/daftar', [PasienPoliController::class, 'submit'])->name('pasien.daftar.submit');
 
-    Route::post('/daftar', [PasienPoliController::class, 'submit'])
-        ->name('pasien.daftar.submit');
+    // Pembayaran Pasien
+    Route::get('/pembayaran', [PasienPembayaranController::class, 'index'])->name('pasien.pembayaran.index');
+    Route::get('/pembayaran/{id}/upload', [PasienPembayaranController::class, 'create'])->name('pasien.pembayaran.create');
+    Route::post('/pembayaran/{id}/upload', [PasienPembayaranController::class, 'store'])->name('pasien.pembayaran.store');
 });

@@ -17,10 +17,18 @@ class PoliController extends Controller
         $polis = Poli::all();
         $jadwal = JadwalPeriksa::with('dokter', 'dokter.poli')->get();
 
+        // Cek apakah pasien masih memiliki antrian aktif (belum selesai diperiksa)
+        $antrianAktif = DaftarPoli::where('id_pasien', $user->id)
+            ->doesntHave('periksas')
+            ->with(['jadwalPeriksa.dokter.poli'])
+            ->latest()
+            ->first();
+
         return view('pasien.daftar', [
             'user' => $user,
             'polis' => $polis,
             'jadwals' => $jadwal,
+            'antrianAktif' => $antrianAktif,
         ]);
     }
 
@@ -33,6 +41,18 @@ class PoliController extends Controller
             'id_pasien' => 'required|exists:users,id',
         ]);
 
+        // Ketentuan: Pasien tidak dapat mendaftar ke dua poli sekaligus & hanya dapat mendaftar kembali setelah proses periksa selesai
+        $antrianAktif = DaftarPoli::where('id_pasien', $request->id_pasien)
+            ->doesntHave('periksas')
+            ->first();
+
+        if ($antrianAktif) {
+            return redirect()
+                ->back()
+                ->with('error', 'Anda masih memiliki antrean aktif yang belum selesai diperiksa. Anda tidak dapat mendaftar ke dua poli sekaligus.')
+                ->withInput();
+        }
+
         $jumlahSudahDaftar = DaftarPoli::where('id_jadwal', $request->id_jadwal)->count();
 
         DaftarPoli::create([
@@ -43,8 +63,8 @@ class PoliController extends Controller
         ]);
 
         return redirect()
-            ->back()
-            ->with('message', 'Berhasil Mendaftar ke Poli')
+            ->route('pasien.dashboard')
+            ->with('message', 'Berhasil mendaftar ke poli! Silakan pantau nomor antrian Anda di dashboard.')
             ->with('type', 'success');
     }
 }

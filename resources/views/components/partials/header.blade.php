@@ -17,9 +17,115 @@
     </div>
 
     {{-- Fullscreen --}}
-    <button onclick="toggleFullscreen()" class="btn btn-square btn-ghost">
-        <i id="fsIcon" class="fas fa-expand w-5 h-5"></i>
+    <button onclick="toggleFullscreen()" class="btn btn-square btn-ghost text-slate-600 hover:bg-slate-100">
+        <i id="fsIcon" class="fas fa-expand w-4 h-4"></i>
     </button>
+
+    @auth
+    @php
+        $unreadNotifCount = auth()->user()->unreadNotifications->count();
+        $recentNotifs = auth()->user()->notifications()->latest()->take(6)->get();
+    @endphp
+
+    {{-- Notification Dropdown --}}
+    <div class="dropdown dropdown-end relative">
+        <button tabindex="0" role="button" aria-label="Notifikasi" class="relative p-2.5 rounded-xl hover:bg-slate-100 text-slate-600 transition flex items-center justify-center cursor-pointer">
+            <i class="fas fa-bell text-lg"></i>
+            @if($unreadNotifCount > 0)
+            <span class="absolute top-1.5 right-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
+                {{ $unreadNotifCount > 9 ? '9+' : $unreadNotifCount }}
+            </span>
+            @endif
+        </button>
+
+        <div tabindex="0" class="dropdown-content z-[100] menu p-0 shadow-2xl bg-base-100 rounded-2xl border border-slate-200 w-80 sm:w-96 mt-2 overflow-hidden">
+            {{-- Header Dropdown --}}
+            <div class="px-4 py-3 bg-slate-50/90 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-sm text-slate-800">Notifikasi</span>
+                    @if($unreadNotifCount > 0)
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-[#2d4499]">
+                        {{ $unreadNotifCount }} Baru
+                    </span>
+                    @endif
+                </div>
+
+                @if($unreadNotifCount > 0)
+                <form action="{{ route('notifikasi.markAllAsRead') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="text-[11px] font-semibold text-[#2d4499] hover:underline cursor-pointer">
+                        Tandai semua dibaca
+                    </button>
+                </form>
+                @endif
+            </div>
+
+            {{-- List Notifikasi --}}
+            <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                @forelse($recentNotifs as $notif)
+                @php
+                    $isUnread = is_null($notif->read_at);
+                @endphp
+                <div class="p-3.5 transition {{ $isUnread ? 'bg-blue-50/70 border-l-4 border-[#2d4499]' : 'hover:bg-slate-50' }}">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg {{ $isUnread ? 'bg-blue-100 text-[#2d4499]' : 'bg-slate-100 text-slate-500' }} flex items-center justify-center shrink-0 text-xs">
+                            <i class="fas {{ $notif->data['icon'] ?? 'fa-bell' }}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-1 mb-0.5">
+                                <span class="text-xs font-bold {{ $isUnread ? 'text-[#2d4499]' : 'text-slate-800' }}">
+                                    {{ $notif->data['title'] ?? 'Notifikasi' }}
+                                </span>
+                                <span class="text-[10px] text-slate-400 whitespace-nowrap">
+                                    {{ $notif->created_at->diffForHumans() }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                                {{ $notif->data['message'] ?? '-' }}
+                            </p>
+
+                            <div class="flex items-center justify-between mt-2 pt-1">
+                                @if(isset($notif->data['action_url']))
+                                <form action="{{ route('notifikasi.markAsRead', $notif->id) }}?redirect=1" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-[11px] font-bold text-[#2d4499] hover:underline inline-flex items-center gap-1 cursor-pointer">
+                                        <span>Lihat Detail</span>
+                                        <i class="fas fa-chevron-right text-[9px]"></i>
+                                    </button>
+                                </form>
+                                @else
+                                <span></span>
+                                @endif
+
+                                @if($isUnread)
+                                <form action="{{ route('notifikasi.markAsRead', $notif->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="text-[10px] font-medium text-slate-400 hover:text-slate-700 cursor-pointer">
+                                        Tandai dibaca
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="p-8 text-center text-slate-400">
+                    <i class="fas fa-bell-slash text-2xl mb-2 text-slate-300 block"></i>
+                    <span class="text-xs">Belum ada notifikasi</span>
+                </div>
+                @endforelse
+            </div>
+
+            {{-- Footer Dropdown --}}
+            <div class="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
+                <a href="{{ route('notifikasi.index') }}" class="text-xs font-bold text-[#2d4499] hover:underline block py-1">
+                    Lihat Semua Notifikasi
+                </a>
+            </div>
+        </div>
+    </div>
+    @endauth
 
     {{-- User Info --}}
     <div class="flex items-center gap-3">
