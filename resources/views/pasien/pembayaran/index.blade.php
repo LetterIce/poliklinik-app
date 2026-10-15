@@ -18,10 +18,10 @@
             <p class="text-sm text-slate-500 mt-1">Daftar tagihan pemeriksaan medis dan status verifikasi pembayaran Anda.</p>
         </div>
 
-        {{-- Badge Informasi Midtrans Demo --}}
-        <div class="flex items-center gap-2 bg-indigo-50 border border-indigo-200 px-3.5 py-2 rounded-xl text-xs font-semibold text-[#2d4499]">
-            <i class="fas fa-shield-alt"></i>
-            <span>Tersedia Pembayaran Otomatis via Midtrans (Sandbox Demo)</span>
+        {{-- Badge Informasi Layanan --}}
+        <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 px-3.5 py-2 rounded-xl text-xs font-semibold text-[#2d4499]">
+            <i class="fas fa-shield-halved text-emerald-600"></i>
+            <span>Mendukung Pembayaran Non-Tunai (QRIS & Virtual Account Bank)</span>
         </div>
     </div>
 
@@ -121,13 +121,13 @@
                             <td class="px-6 py-4 text-right">
                                 @if(!$pembayaran || $pembayaran->status === 'ditolak')
                                     <div class="flex items-center justify-end gap-2">
-                                        {{-- Tombol Bayar Otomatis Midtrans --}}
+                                        {{-- Tombol Bayar Digital --}}
                                         <button type="button"
                                             id="btn-midtrans-{{ $periksa->id }}"
                                             onclick="payWithMidtrans({{ $periksa->id }})"
                                             class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-[#2d4499] to-indigo-600 hover:from-[#1e2d6b] hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition">
-                                            <i class="fas fa-bolt text-amber-300 text-xs"></i>
-                                            <span>Bayar Online (Midtrans)</span>
+                                            <i class="fas fa-qrcode text-xs text-emerald-300"></i>
+                                            <span>Bayar Instan (QRIS / VA)</span>
                                         </button>
 
                                         {{-- Opsi Upload Bukti Manual --}}

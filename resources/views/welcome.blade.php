@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Poliklinik Sehat - Sistem Layanan Kesehatan & Antrian Online Terpadu</title>
+    <title>PoliSehat</title>
 
     <!-- Google Fonts Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,39 +22,90 @@
         }
         .hero-pattern {
             background-color: #f8fafc;
-            background-image: radial-gradient(#2d449918 1px, transparent 1px), radial-gradient(#2d449918 1px, #f8fafc 1px);
-            background-size: 40px 40px;
-            background-position: 0 0, 20px 20px;
+            background-image: radial-gradient(#2d449912 1px, transparent 1px), radial-gradient(#2d449912 1px, #f8fafc 1px);
+            background-size: 36px 36px;
+            background-position: 0 0, 18px 18px;
+        }
+
+        /* Kartun Bergerak & Floating Animations */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(1.2deg); }
+        }
+        @keyframes floatReverse {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(12px) rotate(-1.5deg); }
+        }
+        @keyframes floatFast {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-7px) scale(1.03); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.45; }
+            50% { transform: scale(1.15); opacity: 0.75; }
+        }
+        @keyframes twinkle {
+            0%, 100% { transform: scale(0.7) rotate(0deg); opacity: 0.3; }
+            50% { transform: scale(1.2) rotate(45deg); opacity: 1; }
+        }
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            14% { transform: scale(1.2); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.2); }
+            70% { transform: scale(1); }
+        }
+
+        .anim-float-slow {
+            animation: floatSlow 4.5s ease-in-out infinite;
+        }
+        .anim-float-reverse {
+            animation: floatReverse 5.2s ease-in-out infinite;
+        }
+        .anim-float-fast {
+            animation: floatFast 3s ease-in-out infinite;
+        }
+        .anim-pulse-glow {
+            animation: pulseGlow 4s ease-in-out infinite;
+        }
+        .anim-twinkle {
+            animation: twinkle 2.2s ease-in-out infinite;
+        }
+        .anim-heartbeat {
+            animation: heartBeat 2s ease-in-out infinite;
+        }
+        .mascot-bounce:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-[#2d4499] selection:text-white">
 
     {{-- ================= NAVBAR ================= --}}
-    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300">
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             
             {{-- Brand Logo --}}
-            <a href="/" class="flex items-center gap-3 group">
+            <a href="/" class="flex items-center gap-3.5 group">
                 <div class="w-11 h-11 rounded-2xl bg-[#2d4499] text-white flex items-center justify-center shadow-md shadow-indigo-950/20 group-hover:scale-105 transition-transform duration-200">
-                    <i class="fas fa-heart-pulse text-xl"></i>
+                    <i class="fas fa-hospital-user text-xl"></i>
                 </div>
                 <div>
                     <span class="font-extrabold text-xl tracking-tight text-slate-900 block leading-tight">
                         Poli<span class="text-[#2d4499]">Sehat</span>
                     </span>
-                    <span class="text-[11px] font-semibold text-slate-400 tracking-wider uppercase block">Poliklinik Terpadu</span>
+                    <span class="text-[11px] font-semibold text-slate-400 tracking-wider uppercase block">Klinik Terakreditasi</span>
                 </div>
             </a>
 
             {{-- Desktop Navigation --}}
-            <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+            <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600">
                 <a href="#beranda" class="hover:text-[#2d4499] transition">Beranda</a>
-                <a href="#layanan" class="hover:text-[#2d4499] transition">Layanan Poli</a>
-                <a href="#alur" class="hover:text-[#2d4499] transition">Alur Berobat</a>
-                <a href="#jadwal" class="hover:text-[#2d4499] transition">Jadwal Dokter</a>
-                <a href="#pembayaran" class="hover:text-[#2d4499] transition">Bayar Online</a>
-                <a href="#faq" class="hover:text-[#2d4499] transition">FAQ</a>
+                <a href="#layanan" class="hover:text-[#2d4499] transition">Layanan Spesialis</a>
+                <a href="#fasilitas" class="hover:text-[#2d4499] transition">Fasilitas</a>
+                <a href="#alur" class="hover:text-[#2d4499] transition">Alur Pasien</a>
+                <a href="#jadwal" class="hover:text-[#2d4499] transition">Jadwal Praktik</a>
+                <a href="#pembayaran" class="hover:text-[#2d4499] transition">Metode Pembayaran</a>
             </nav>
 
             {{-- Action Buttons --}}
@@ -69,19 +120,19 @@
                     @endphp
                     <a href="{{ $dashboardRoute }}"
                         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white text-sm font-bold shadow-md shadow-indigo-900/10 transition-all hover:scale-102">
-                        <i class="fas fa-columns text-xs"></i>
-                        <span>Ke Dashboard ({{ ucfirst($role) }})</span>
+                        <i class="fas fa-user-check text-xs"></i>
+                        <span>Dashboard Pasien</span>
                     </a>
                 @else
                     <a href="{{ route('login') }}"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-700 hover:text-[#2d4499] hover:bg-slate-100/80 text-sm font-bold transition">
+                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-700 hover:text-[#2d4499] hover:bg-slate-100 text-sm font-bold transition">
                         <i class="fas fa-right-to-bracket text-xs"></i>
                         <span>Masuk</span>
                     </a>
                     <a href="{{ route('register') }}"
                         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white text-sm font-bold shadow-md shadow-indigo-900/10 transition-all hover:scale-102">
-                        <i class="fas fa-user-plus text-xs"></i>
-                        <span>Daftar Pasien</span>
+                        <i class="fas fa-calendar-plus text-xs"></i>
+                        <span>Daftar Berobat</span>
                     </a>
                 @endauth
             </div>
@@ -96,22 +147,15 @@
                 
                 {{-- Left Text --}}
                 <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
-                    
-                    {{-- Badge --}}
-                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-[#2d4499] text-xs font-bold shadow-xs">
-                        <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
-                        <i class="fas fa-bolt text-amber-500"></i>
-                        <span>Antrian Real-Time & Pembayaran Instan via Midtrans</span>
-                    </div>
 
                     {{-- Main Headline --}}
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
-                        Pelayanan Medis Modern, <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#2d4499] via-indigo-600 to-sky-600">Cepat & Tanpa Antri Lama.</span>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.18]">
+                        Kesehatan Keluarga Anda, <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#2d4499] via-indigo-600 to-blue-600">Prioritas Utama Kami.</span>
                     </h1>
 
-                    {{-- Subheadline --}}
+                    {{-- Subheadline Medis --}}
                     <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
-                        Daftar jadwal periksa spesialis langsung dari rumah. Pantau nomor antrian secara langsung (*live update*) tanpa reload halaman, dan nikmati kemudahan pembayaran digital otomatis.
+                        Klinik rawat jalan terpadu dengan dokter spesialis berpengalaman. Nikmati kemudahan pendaftaran antrian secara daring, pemantauan giliran periksa secara transparan, dan rekam medis digital yang aman.
                     </p>
 
                     {{-- CTA Buttons --}}
@@ -120,100 +164,118 @@
                             <a href="{{ route('pasien.daftar') }}"
                                 class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white font-bold text-base shadow-lg shadow-indigo-900/20 transition-all hover:scale-102">
                                 <i class="fas fa-calendar-check"></i>
-                                <span>Daftar Periksa Sekarang</span>
+                                <span>Pendaftaran Pemeriksaan</span>
                             </a>
                         @else
                             <a href="{{ route('register') }}"
                                 class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white font-bold text-base shadow-lg shadow-indigo-900/20 transition-all hover:scale-102">
-                                <i class="fas fa-clipboard-check"></i>
+                                <i class="fas fa-user-plus"></i>
                                 <span>Daftar Pasien Baru</span>
                             </a>
                         @endauth
-                        <a href="#layanan"
+                        <a href="#jadwal"
                             class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-base border border-slate-200 shadow-sm transition">
-                            <i class="fas fa-stethoscope text-[#2d4499]"></i>
-                            <span>Lihat Layanan Poli</span>
+                            <i class="fas fa-user-doctor text-[#2d4499]"></i>
+                            <span>Jadwal Dokter Spesialis</span>
                         </a>
                     </div>
 
-                    {{-- Micro Trust Indicators --}}
-                    <div class="pt-6 border-t border-slate-200/60 grid grid-cols-3 gap-4 text-center lg:text-left">
+                    {{-- Data Kepercayaan Pasien --}}
+                    <div class="pt-6 border-t border-slate-200/60 grid grid-cols-3 gap-6 text-center lg:text-left">
                         <div>
                             <span class="block text-2xl font-black text-slate-900">{{ $poliCount ?? 4 }}+</span>
-                            <span class="text-xs text-slate-500 font-medium">Poli Spesialis</span>
+                            <span class="text-xs text-slate-500 font-medium">Poliklinik Spesialis</span>
                         </div>
                         <div>
                             <span class="block text-2xl font-black text-slate-900">{{ $dokterCount ?? 5 }}+</span>
-                            <span class="text-xs text-slate-500 font-medium">Dokter Ahli</span>
+                            <span class="text-xs text-slate-500 font-medium">Dokter Spesialis Ahli</span>
                         </div>
                         <div>
-                            <span class="block text-2xl font-black text-[#2d4499]">100%</span>
-                            <span class="text-xs text-slate-500 font-medium">Digital & Cashless</span>
+                            <span class="block text-2xl font-black text-[#2d4499]">4.9 / 5.0</span>
+                            <span class="text-xs text-slate-500 font-medium">Kepuasan Pasien</span>
                         </div>
                     </div>
 
                 </div>
 
-                {{-- Right Visual: Mockup Card Antrian Live --}}
-                <div class="lg:col-span-5 relative">
-                    <div class="relative mx-auto max-w-md">
+                {{-- Right Visual: Animasi Kartun Bergerak & Floating Badges --}}
+                <div class="lg:col-span-5 relative py-6">
+                    <div class="relative mx-auto max-w-[440px] flex items-center justify-center min-h-[460px]">
                         
-                        {{-- Background Glow --}}
-                        <div class="absolute -top-10 -left-10 w-72 h-72 bg-blue-300/40 rounded-full blur-3xl -z-10 pointer-events-none"></div>
-                        <div class="absolute -bottom-10 -right-10 w-72 h-72 bg-indigo-300/40 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+                        {{-- Ambient Animated Glows --}}
+                        <div class="absolute w-80 h-80 bg-gradient-to-tr from-blue-300/40 via-indigo-300/30 to-purple-300/40 rounded-full blur-3xl anim-pulse-glow -z-10 pointer-events-none"></div>
+                        <div class="absolute -bottom-6 -right-6 w-56 h-56 bg-emerald-200/40 rounded-full blur-2xl anim-float-slow -z-10 pointer-events-none" style="animation-duration: 7s;"></div>
 
-                        {{-- Card Utama --}}
-                        <div class="bg-white rounded-3xl p-6 shadow-2xl border border-slate-200/90 relative overflow-hidden">
-                            
-                            {{-- Card Header --}}
-                            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                                <div class="flex items-center gap-2.5">
-                                    <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    <span class="font-bold text-slate-800 text-sm">Status Antrian Poliklinik</span>
-                                </div>
-                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-[#2d4499] border border-blue-200">
-                                    Live WebSocket
-                                </span>
+                        {{-- Floating Micro Elements (Sparkles, Heart, Pill) --}}
+                        <div class="absolute top-2 left-6 text-xl anim-twinkle select-none pointer-events-none z-20">✨</div>
+                        <div class="absolute top-1/4 -right-2 text-2xl anim-heartbeat select-none pointer-events-none z-20">❤️</div>
+                        <div class="absolute bottom-16 -left-3 text-2xl anim-float-fast select-none pointer-events-none z-20">💊</div>
+                        <div class="absolute bottom-6 right-8 text-xl anim-twinkle select-none pointer-events-none z-20" style="animation-delay: -1.2s;">✨</div>
+
+                        {{-- Floating Speech Bubble --}}
+                        <div class="absolute -top-6 right-2 sm:right-6 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2 anim-float-fast z-30">
+                            <span class="text-sm">👋</span>
+                            <span class="text-xs font-bold text-slate-700">Yuk, jaga kesehatanmu!</span>
+                            <div class="absolute -bottom-1.5 right-6 w-3 h-3 bg-white rotate-45 border-r border-b border-slate-100"></div>
+                        </div>
+
+                        {{-- Main Cartoon Character (Animated) --}}
+                        <div class="relative z-10 w-full flex items-center justify-center p-2">
+                            <img src="{{ asset('images/hero-mascot-original.png') }}"
+                                 alt="Karakter Medis Kartun PoliSehat"
+                                 id="heroMascot"
+                                 class="w-full max-w-[340px] sm:max-w-[400px] object-contain drop-shadow-2xl anim-float-slow transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer select-none"
+                                 title="Klik aku untuk sapaan hangat!">
+                        </div>
+
+                        {{-- Floating Card 1 (Top Left): Dokter Siaga --}}
+                        <div class="absolute -top-3 -left-3 sm:-left-8 bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-xl border border-slate-100/80 flex items-center gap-3 anim-float-reverse z-20 hover:scale-105 transition-transform">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg font-bold shadow-sm">
+                                🩺
                             </div>
-
-                            {{-- Nomor Antrian Dipanggil Showcase --}}
-                            <div class="my-5 p-5 bg-gradient-to-br from-[#2d4499] to-indigo-700 rounded-2xl text-white text-center shadow-md relative overflow-hidden">
-                                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full"></div>
-                                <span class="text-xs uppercase tracking-widest text-indigo-200 font-bold block mb-1">
-                                    Sedang Dilayani di Poli Umum
-                                </span>
-                                <div class="text-5xl font-black font-mono tracking-tight my-1">
-                                    A - 012
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                                    <span class="text-xs font-bold text-slate-800">Dokter Siaga</span>
                                 </div>
-                                <span class="text-xs text-indigo-100 flex items-center justify-center gap-1.5 mt-2">
-                                    <i class="fas fa-user-doctor text-xs"></i>
-                                    dr. Spesialis Sedang Memeriksa
-                                </span>
+                                <span class="text-[10px] text-slate-500 font-medium">Pelayanan Rawat Jalan</span>
                             </div>
+                        </div>
 
-                            {{-- Mini Feature List --}}
-                            <div class="space-y-3 pt-2">
-                                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                                    <div class="flex items-center gap-2.5">
-                                        <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
-                                            <i class="fas fa-qrcode"></i>
-                                        </div>
-                                        <span class="font-semibold text-slate-700">Pembayaran QRIS & VA Midtrans</span>
-                                    </div>
-                                    <span class="text-emerald-600 font-bold">Otomatis Lunas</span>
-                                </div>
-
-                                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                                    <div class="flex items-center gap-2.5">
-                                        <div class="w-7 h-7 rounded-lg bg-blue-100 text-[#2d4499] flex items-center justify-center text-xs font-bold">
-                                            <i class="fas fa-file-medical"></i>
-                                        </div>
-                                        <span class="font-semibold text-slate-700">Rekam Medis & Resep Obat</span>
-                                    </div>
-                                    <span class="text-blue-600 font-bold">Tersimpan Aman</span>
+                        {{-- Floating Card 2 (Top Right): Antrian Aktif Terpantau --}}
+                        <div class="absolute top-12 -right-2 sm:-right-8 bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-xl border border-slate-100/80 flex items-center gap-3 anim-float-slow z-20 hover:scale-105 transition-transform" style="animation-delay: -1.8s;">
+                            <div class="w-9 h-9 rounded-xl bg-indigo-100 text-[#2d4499] flex items-center justify-center text-lg shadow-sm">
+                                ⚡
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Antrian Terkini</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-sm font-black text-slate-900 font-mono">A - 012</span>
+                                    <span class="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded-full">Poli Umum</span>
                                 </div>
                             </div>
+                        </div>
 
+                        {{-- Floating Card 3 (Bottom Left): Resep Apotek Digital --}}
+                        <div class="absolute -bottom-4 -left-3 sm:-left-8 bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-xl border border-slate-100/80 flex items-center gap-3 anim-float-slow z-20 hover:scale-105 transition-transform" style="animation-delay: -3s;">
+                            <div class="w-9 h-9 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center text-lg shadow-sm">
+                                💊
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-slate-800 block">Resep Obat Resmi</span>
+                                <span class="text-[10px] text-slate-500 font-medium">Pengambilan Cepat & Akurat</span>
+                            </div>
+                        </div>
+
+                        {{-- Floating Card 4 (Bottom Right): Pembayaran QRIS & VA --}}
+                        <div class="absolute -bottom-2 -right-2 sm:-right-6 bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-xl border border-slate-100/80 flex items-center gap-3 anim-float-reverse z-20 hover:scale-105 transition-transform" style="animation-delay: -4s;">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-base shadow-sm">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-slate-800 block">Pembayaran Instan</span>
+                                <span class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded-full inline-block">QRIS & VA Midtrans</span>
+                            </div>
                         </div>
 
                     </div>
@@ -223,52 +285,61 @@
         </div>
     </section>
 
-    {{-- ================= FITUR UNGGULAN STRIP ================= --}}
-    <section class="py-12 bg-white border-b border-slate-200">
+    {{-- ================= FASILITAS & KEUNGGULAN ================= --}}
+    <section id="fasilitas" class="py-16 bg-white border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
+                    Fasilitas & Keunggulan Pelayanan
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">Kami berkomitmen memberikan pelayanan medis bermutu tinggi dan berorientasi pada keselamatan pasien.</p>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 
-                {{-- Fitur 1 --}}
+                {{-- Fasilitas 1 --}}
                 <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-md transition">
                     <div class="w-12 h-12 rounded-xl bg-blue-100 text-[#2d4499] flex items-center justify-center text-xl mb-4">
-                        <i class="fas fa-tower-broadcast"></i>
+                        <i class="fas fa-display"></i>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Antrian Real-Time</h3>
+                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Sistem Antrian Terintegrasi</h3>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Nomor antrian terupdate otomatis berkat teknologi Laravel Reverb tanpa perlu me-refresh halaman berulang kali.
+                        Pantau giliran pemeriksaan dari perangkat Anda tanpa harus berkerumun lama di ruang tunggu klinik.
                     </p>
                 </div>
 
-                {{-- Fitur 2 --}}
-                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-200 hover:shadow-md transition">
-                    <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl mb-4">
-                        <i class="fas fa-credit-card"></i>
-                    </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Bayar Online Midtrans</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Selesaikan tagihan periksa via QRIS, Virtual Account (BCA, Mandiri, BRI) langsung terverifikasi seketika.
-                    </p>
-                </div>
-
-                {{-- Fitur 3 --}}
+                {{-- Fasilitas 2 --}}
                 <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-emerald-200 hover:shadow-md transition">
                     <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl mb-4">
                         <i class="fas fa-user-doctor"></i>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Dokter Terverifikasi</h3>
+                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Dokter Spesialis Berpengalaman</h3>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Ditangani langsung oleh para dokter spesialis profesional yang berdedikasi tinggi memberikan diagnosa akurat.
+                        Pemeriksaan dilakukan secara komprehensif oleh dokter ahli bersertifikasi dengan empati dan kehati-hatian.
                     </p>
                 </div>
 
-                {{-- Fitur 4 --}}
+                {{-- Fasilitas 3 --}}
                 <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-purple-200 hover:shadow-md transition">
                     <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl mb-4">
-                        <i class="fas fa-file-invoice"></i>
+                        <i class="fas fa-pills"></i>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Rekam Medis Transparan</h3>
+                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Instalasi Farmasi Lengkap</h3>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Riwayat diagnosa dokter, resep obat, catatan medis, dan rincian biaya dapat Anda akses kapan saja.
+                        Penyediaan obat-obatan asli berkualitas tinggi sesuai dengan resep dan petunjuk penggunaan dokter.
+                    </p>
+                </div>
+
+                {{-- Fasilitas 4 --}}
+                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-200 hover:shadow-md transition">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl mb-4">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Rincian Biaya Transparan</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        Rincian jasa medis dan harga resep obat tercatat dengan jelas tanpa ada biaya tersembunyi.
                     </p>
                 </div>
 
@@ -276,20 +347,16 @@
         </div>
     </section>
 
-    {{-- ================= SECTION LAYANAN POLI ================= --}}
-    <section id="layanan" class="py-20 bg-slate-50 border-b border-slate-200">
+    {{-- ================= SECTION LAYANAN POLI SPESIALIS ================= --}}
+    <section id="layanan" class="py-16 bg-slate-50 border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            {{-- Section Title --}}
             <div class="text-center max-w-2xl mx-auto mb-16">
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-[#2d4499] uppercase tracking-wider">
-                    Layanan Poliklinik
-                </span>
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3 tracking-tight">
-                    Pilihan Poliklinik Spesialis
+                    Layanan Medis Spesialis
                 </h2>
                 <p class="text-sm text-slate-500 mt-2 leading-relaxed">
-                    Kami menyediakan berbagai poliklinik dengan sarana medis modern dan dokter spesialis yang siap melayani kebutuhan Anda.
+                    Tersedia berbagai poliklinik dengan sarana diagnostik modern untuk memenuhi kebutuhan kesehatan Anda dan keluarga.
                 </p>
             </div>
 
@@ -300,10 +367,10 @@
                     <div class="p-7">
                         <div class="flex items-center justify-between mb-5">
                             <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#2d4499] flex items-center justify-center text-xl font-bold border border-blue-100">
-                                <i class="fas fa-hospital-user"></i>
+                                <i class="fas fa-stethoscope"></i>
                             </div>
                             <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
-                                {{ $poli->dokters_count ?? 0 }} Dokter Spesialis
+                                {{ $poli->dokters_count ?? 0 }} Dokter Praktik
                             </span>
                         </div>
 
@@ -316,11 +383,11 @@
 
                         <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
                             <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
-                                <i class="fas fa-circle-check text-[10px]"></i> Buka Setiap Hari Praktik
+                                <i class="fas fa-circle-check text-[10px]"></i> Sesuai Jadwal Praktik
                             </span>
                             @auth
                                 <a href="{{ route('pasien.daftar') }}" class="text-xs font-bold text-[#2d4499] hover:underline flex items-center gap-1">
-                                    Daftar <i class="fas fa-arrow-right text-[10px]"></i>
+                                    Daftar Periksa <i class="fas fa-arrow-right text-[10px]"></i>
                                 </a>
                             @else
                                 <a href="{{ route('login') }}" class="text-xs font-bold text-[#2d4499] hover:underline flex items-center gap-1">
@@ -332,7 +399,7 @@
                 </div>
                 @empty
                 <div class="col-span-3 text-center py-12 text-slate-400">
-                    Belum ada data poliklinik yang ditampilkan.
+                    Daftar poliklinik sedang diperbarui.
                 </div>
                 @endforelse
             </div>
@@ -340,19 +407,16 @@
         </div>
     </section>
 
-    {{-- ================= ALUR BEROBAT ================= --}}
-    <section id="alur" class="py-20 bg-white border-b border-slate-200">
+    {{-- ================= ALUR PASIEN ================= --}}
+    <section id="alur" class="py-16 bg-white border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div class="text-center max-w-2xl mx-auto mb-16">
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-[#2d4499] uppercase tracking-wider">
-                    Alur Mudah
-                </span>
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3 tracking-tight">
-                    4 Langkah Praktis Berobat di Poliklinik
+                    Tahapan Praktis Pelayanan Pasien
                 </h2>
                 <p class="text-sm text-slate-500 mt-2">
-                    Proses terintegrasi mulai dari pendaftaran antrian hingga pemeriksaan dan pembayaran selesai.
+                    Dirancang untuk kenyamanan, efisiensi waktu, dan kepuasan pasien sejak pendaftaran hingga pemulihan.
                 </p>
             </div>
 
@@ -363,9 +427,9 @@
                     <div class="w-12 h-12 rounded-full bg-[#2d4499] text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
                         1
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">Daftar Akun Pasien</h3>
+                    <h3 class="font-bold text-slate-900 text-base mb-2">Registrasi Pasien</h3>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Registrasi data diri Anda untuk mendapatkan Nomor Rekam Medis (RM) resmi dari klinik.
+                        Lengkapi data diri pasien untuk pencatatan rekam medis yang valid dan terorganisir.
                     </p>
                 </div>
 
@@ -374,9 +438,9 @@
                     <div class="w-12 h-12 rounded-full bg-[#2d4499] text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
                         2
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">Pilih Poli & Dokter</h3>
+                    <h3 class="font-bold text-slate-900 text-base mb-2">Pilih Dokter & Jadwal</h3>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Tentukan poli tujuan, dokter spesialis, jadwal praktik, serta tuliskan keluhan awal Anda.
+                        Pilih poli tujuan dan dokter pemeriksa, lalu dapatkan nomor antrian resmi poliklinik.
                     </p>
                 </div>
 
@@ -385,9 +449,9 @@
                     <div class="w-12 h-12 rounded-full bg-[#2d4499] text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
                         3
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">Pantau Live Antrian</h3>
+                    <h3 class="font-bold text-slate-900 text-base mb-2">Pemeriksaan Dokter</h3>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Nomor antrian Anda muncul di dashboard dan diperbarui secara real-time tanpa perlu duduk lama di ruang tunggu.
+                        Konsultasi dan pemeriksaan klinis oleh dokter spesialis, serta penetapan anjuran medis.
                     </p>
                 </div>
 
@@ -396,9 +460,9 @@
                     <div class="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
                         4
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">Periksa & Bayar Online</h3>
+                    <h3 class="font-bold text-slate-900 text-base mb-2">Penebusan Obat & Kasir</h3>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Lakukan pemeriksaan medis, dapatkan resep obat, lalu bayar secara praktis melalui Midtrans (QRIS / VA).
+                        Ambil obat di farmasi klinik dan selesaikan pembayaran secara non-tunai atau tunai dengan mudah.
                     </p>
                 </div>
 
@@ -407,30 +471,17 @@
         </div>
     </section>
 
-    {{-- ================= JADWAL DOKTER SECTION ================= --}}
-    <section id="jadwal" class="py-20 bg-slate-50 border-b border-slate-200">
+    {{-- ================= JADWAL DOKTER SPESIALIS ================= --}}
+    <section id="jadwal" class="py-16 bg-slate-50 border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            <div class="flex flex-wrap items-end justify-between gap-4 mb-12">
+            <div class="flex flex-wrap items-center justify-center gap-4 mb-12 text-center">
                 <div>
-                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-[#2d4499] uppercase tracking-wider">
-                        Jadwal Dokter
-                    </span>
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2 tracking-tight">
-                        Jadwal Praktik Dokter Spesialis
+                        Jadwal Kehadiran Dokter Spesialis
                     </h2>
-                    <p class="text-sm text-slate-500 mt-1">Cek jadwal kehadiran dokter kami untuk memudahkan rencana kunjungan Anda.</p>
+                    <p class="text-sm text-slate-500 mt-1">Jadwal praktik dokter spesialis rawat jalan tertera di bawah ini untuk kemudahan konsultasi Anda.</p>
                 </div>
-                
-                @auth
-                <a href="{{ route('pasien.daftar') }}" class="px-5 py-2.5 bg-[#2d4499] text-white rounded-xl text-xs font-bold hover:bg-[#1e2d6b] transition">
-                    Pilih Jadwal & Periksa
-                </a>
-                @else
-                <a href="{{ route('login') }}" class="px-5 py-2.5 bg-[#2d4499] text-white rounded-xl text-xs font-bold hover:bg-[#1e2d6b] transition">
-                    Login untuk Mendaftar
-                </a>
-                @endauth
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -447,7 +498,7 @@
                             </div>
                         </div>
                         <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            Aktif
+                            Praktik
                         </span>
                     </div>
 
@@ -464,7 +515,7 @@
                 </div>
                 @empty
                 <div class="col-span-3 text-center py-10 text-slate-400">
-                    Jadwal praktik dokter sedang diperbarui.
+                    Jadwal praktik dokter sedang disinkronkan.
                 </div>
                 @endforelse
             </div>
@@ -472,145 +523,21 @@
         </div>
     </section>
 
-    {{-- ================= SHOWCASE PEMBAYARAN ONLINE (MIDTRANS) ================= --}}
-    <section id="pembayaran" class="py-20 bg-gradient-to-br from-slate-900 to-indigo-950 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                
-                {{-- Left Text --}}
-                <div class="space-y-6">
-                    <span class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                        <i class="fas fa-wallet mr-1 text-amber-300"></i> Pembayaran Cashless Otomatis
-                    </span>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
-                        Bayar Tagihan Berobat Jadi Lebih Cepat dengan Midtrans
-                    </h2>
-                    <p class="text-slate-300 text-sm leading-relaxed">
-                        Tidak perlu mengantri lagi di kasir. Selesaikan pembayaran biaya konsultasi dokter dan obat resep langsung dari smartphone Anda menggunakan berbagai metode pembayaran favorit:
-                    </p>
-
-                    <div class="grid grid-cols-2 gap-4 text-xs pt-2">
-                        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10">
-                            <i class="fas fa-qrcode text-xl text-emerald-400"></i>
-                            <div>
-                                <span class="font-bold block text-white">QRIS Dinamis</span>
-                                <span class="text-slate-400 text-[11px]">GoPay, OVO, Dana, Shopee</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10">
-                            <i class="fas fa-building-columns text-xl text-blue-400"></i>
-                            <div>
-                                <span class="font-bold block text-white">Virtual Account</span>
-                                <span class="text-slate-400 text-[11px]">BCA, Mandiri, BRI, BNI</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 flex items-center gap-2 text-xs text-slate-300">
-                        <i class="fas fa-circle-check text-emerald-400"></i>
-                        <span>Status pembayaran langsung berubah lunas secara instan setelah pembayaran terkonfirmasi.</span>
-                    </div>
-                </div>
-
-                {{-- Right Card Demo --}}
-                <div class="bg-white/10 backdrop-blur-md rounded-3xl p-7 border border-white/15 max-w-md mx-auto shadow-2xl">
-                    <div class="text-xs text-slate-300 pb-3 border-b border-white/10 flex justify-between items-center">
-                        <span>Simulasi Pembayaran Pasien</span>
-                        <span class="text-emerald-400 font-bold">Terverifikasi Otomatis</span>
-                    </div>
-
-                    <div class="py-5 space-y-3 text-xs">
-                        <div class="flex justify-between">
-                            <span class="text-slate-400">Konsultasi Dokter:</span>
-                            <span class="font-mono text-white font-semibold">Rp 150.000</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-400">Resep Obat Medis:</span>
-                            <span class="font-mono text-white font-semibold">Rp 65.000</span>
-                        </div>
-                        <div class="border-t border-dashed border-white/20 pt-3 flex justify-between items-center">
-                            <span class="font-bold text-white">Total Tagihan:</span>
-                            <span class="text-xl font-mono font-black text-amber-400">Rp 215.000</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 p-3.5 bg-white/5 rounded-2xl border border-white/10 text-center">
-                        <span class="text-xs text-slate-300 block mb-2">Metode Didukung:</span>
-                        <div class="flex items-center justify-center gap-4 text-2xl text-slate-300">
-                            <i class="fab fa-cc-visa" title="Visa"></i>
-                            <i class="fab fa-cc-mastercard" title="Mastercard"></i>
-                            <i class="fas fa-qrcode text-emerald-400" title="QRIS"></i>
-                            <i class="fas fa-money-check text-blue-400" title="Virtual Account"></i>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    {{-- ================= FAQ SECTION ================= --}}
-    <section id="faq" class="py-20 bg-white border-b border-slate-200">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 uppercase tracking-wider">
-                    Bantuan
-                </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2 tracking-tight">
-                    Pertanyaan yang Sering Diajukan
-                </h2>
-            </div>
-
-            <div class="space-y-4">
-                <div class="collapse collapse-plus bg-slate-50 border border-slate-200 rounded-2xl">
-                    <input type="radio" name="faq-accordion" checked="checked" />
-                    <div class="collapse-title text-sm font-bold text-slate-800">
-                        Apakah saya bisa mendaftar antrian poliklinik dari rumah?
-                    </div>
-                    <div class="collapse-content text-xs text-slate-600 leading-relaxed">
-                        <p>Ya, tentu saja. Pasien dapat membuat akun, login, dan mendaftar jadwal periksa dokter dari rumah. Anda akan langsung mendapatkan nomor antrian resmi yang tersimpan di akun Anda.</p>
-                    </div>
-                </div>
-
-                <div class="collapse collapse-plus bg-slate-50 border border-slate-200 rounded-2xl">
-                    <input type="radio" name="faq-accordion" />
-                    <div class="collapse-title text-sm font-bold text-slate-800">
-                        Bagaimana cara kerja antrian real-time?
-                    </div>
-                    <div class="collapse-content text-xs text-slate-600 leading-relaxed">
-                        <p>Sistem kami menggunakan teknologi WebSocket (Laravel Reverb). Ketika dokter memanggil pasien berikutnya di ruang poli, tampilan nomor antrian di layar pasien akan langsung terupdate otomatis tanpa perlu memuat ulang halaman browser.</p>
-                    </div>
-                </div>
-
-                <div class="collapse collapse-plus bg-slate-50 border border-slate-200 rounded-2xl">
-                    <input type="radio" name="faq-accordion" />
-                    <div class="collapse-title text-sm font-bold text-slate-800">
-                        Apakah tersedia opsi pembayaran transfer manual?
-                    </div>
-                    <div class="collapse-content text-xs text-slate-600 leading-relaxed">
-                        <p>Ya! Selain pembayaran otomatis instan via Midtrans (QRIS dan Virtual Account), pasien juga tetap dapat mengunggah foto struk transfer manual yang nantinya akan dikonfirmasi oleh Admin poliklinik.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- ================= FOOTER ================= --}}
+    {{-- ================= FOOTER RUMAH SAKIT LENGKAP ================= --}}
     <footer id="kontak" class="bg-slate-900 text-slate-400 text-xs py-14">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-slate-800">
                 
-                {{-- Col 1: Brand & Desc --}}
+                {{-- Col 1: Identitas Klinik --}}
                 <div class="md:col-span-2 space-y-4">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl bg-[#2d4499] text-white flex items-center justify-center font-bold">
-                            <i class="fas fa-heart-pulse text-base"></i>
+                            <i class="fas fa-hospital-user text-base"></i>
                         </div>
                         <span class="font-extrabold text-xl text-white tracking-tight">Poli<span class="text-blue-400">Sehat</span></span>
                     </div>
                     <p class="text-slate-400 leading-relaxed max-w-md">
-                        Sistem Informasi Manajemen Poliklinik Terpadu yang menghubungkan pasien, dokter, dan administrasi dalam satu ekosistem digital yang efisien, transparan, dan modern.
+                        Klinik Pratama Poliklinik Sehat berdedikasi memberikan pelayanan rawat jalan profesional yang mengutamakan mutu, keramahan, dan pemanfaatan sistem manajemen medis modern.
                     </p>
                     <div class="flex items-center gap-3 pt-2">
                         <a href="#" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center hover:bg-[#2d4499] transition">
@@ -625,9 +552,9 @@
                     </div>
                 </div>
 
-                {{-- Col 2: Jam Operasional --}}
+                {{-- Col 2: Jam Pelayanan --}}
                 <div class="space-y-3">
-                    <h4 class="font-bold text-white text-sm">Jam Operasional</h4>
+                    <h4 class="font-bold text-white text-sm">Jam Pelayanan Poliklinik</h4>
                     <p class="leading-relaxed">
                         <strong class="text-slate-300 block">Senin - Jumat:</strong> 08:00 - 20:00 WIB
                     </p>
@@ -635,13 +562,13 @@
                         <strong class="text-slate-300 block">Sabtu:</strong> 08:00 - 15:00 WIB
                     </p>
                     <p class="text-amber-400 font-semibold">
-                        Minggu & Hari Libur: Tutup
+                        Minggu & Hari Libur Nasional: Tutup
                     </p>
                 </div>
 
-                {{-- Col 3: Kontak & Lokasi --}}
+                {{-- Col 3: Informasi Kontak --}}
                 <div class="space-y-3">
-                    <h4 class="font-bold text-white text-sm">Hubungi Kami</h4>
+                    <h4 class="font-bold text-white text-sm">Pusat Informasi & Lokasi</h4>
                     <p class="flex items-start gap-2">
                         <i class="fas fa-map-marker-alt text-[#2d4499] mt-0.5"></i>
                         <span>Jl. Kesehatan Raya No. 45, Kota Semarang, Jawa Tengah</span>
@@ -652,24 +579,55 @@
                     </p>
                     <p class="flex items-center gap-2">
                         <i class="fas fa-envelope text-[#2d4499]"></i>
-                        <span>kontak@poliklinik-sehat.id</span>
+                        <span>layanan@poliklinik-sehat.id</span>
                     </p>
                 </div>
 
             </div>
 
-            {{-- Copyright --}}
+            {{-- Copyright & Legal --}}
             <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-                <p>&copy; {{ date('Y') }} Poliklinik Sehat. Seluruh Hak Cipta Dilindungi.</p>
+                <p>&copy; {{ date('Y') }} Klinik Pratama Poliklinik Sehat. Seluruh Hak Cipta Dilindungi.</p>
                 <div class="flex items-center gap-6">
-                    <a href="#" class="hover:text-slate-300 transition">Kebijakan Privasi</a>
-                    <a href="#" class="hover:text-slate-300 transition">Syarat & Ketentuan</a>
-                    <a href="{{ route('login') }}" class="hover:text-slate-300 transition">Portal Staf</a>
+                    <a href="#" class="hover:text-slate-300 transition">Kebijakan Privasi Pasien</a>
+                    <a href="#" class="hover:text-slate-300 transition">Tata Tertib Pelayanan</a>
+                    <a href="{{ route('login') }}" class="hover:text-slate-300 transition">Akses Staf Medis</a>
                 </div>
             </div>
 
         </div>
     </footer>
 
+    {{-- Mascot Interactive Interaction Script --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mascot = document.getElementById('heroMascot');
+            if (!mascot) return;
+
+            const greetings = [
+                "Yuk, jaga kesehatanmu hari ini! 🌟",
+                "Dokter kami selalu siap melayani dengan ramah! 🩺",
+                "Pendaftaran antrian online bikin waktu lebih hemat! ⏱️",
+                "Jangan lupa minum cukup air putih ya! 💧",
+                "Semoga lekas pulih dan sehat selalu! 💚"
+            ];
+
+            let greetIndex = 0;
+            const bubbleText = document.querySelector('#beranda .anim-float-fast span:last-child');
+
+            mascot.addEventListener('click', function () {
+                greetIndex = (greetIndex + 1) % greetings.length;
+                if (bubbleText) {
+                    bubbleText.textContent = greetings[greetIndex];
+                }
+                mascot.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                mascot.style.transform = 'scale(1.12) rotate(' + (Math.random() > 0.5 ? '4deg' : '-4deg') + ')';
+                setTimeout(() => {
+                    mascot.style.transform = '';
+                }, 300);
+            });
+        });
+    </script>
 </body>
 </html>
+
