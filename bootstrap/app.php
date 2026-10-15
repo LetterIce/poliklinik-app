@@ -16,6 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);
+
+        // Pengecualian CSRF untuk Webhook Payment Gateway Midtrans
+        $middleware->validateCsrfTokens(except: [
+            'api/midtrans-callback',
+            'midtrans-callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {})
     ->create();

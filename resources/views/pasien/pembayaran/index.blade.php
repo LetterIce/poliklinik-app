@@ -1,5 +1,14 @@
 <x-layouts.app title="Riwayat Pembayaran">
 
+    {{-- Script Midtrans Snap Sandbox / Production --}}
+    @php
+        $snapUrl = config('services.midtrans.is_production')
+            ? 'https://app.midtrans.com/snap/snap.js'
+            : 'https://app.sandbox.midtrans.com/snap/snap.js';
+        $clientKey = config('services.midtrans.client_key');
+    @endphp
+    <script type="text/javascript" src="{{ $snapUrl }}" data-client-key="{{ $clientKey }}"></script>
+
     {{-- Header --}}
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
@@ -7,6 +16,12 @@
                 Riwayat Pembayaran & Tagihan
             </h2>
             <p class="text-sm text-slate-500 mt-1">Daftar tagihan pemeriksaan medis dan status verifikasi pembayaran Anda.</p>
+        </div>
+
+        {{-- Badge Informasi Midtrans Demo --}}
+        <div class="flex items-center gap-2 bg-indigo-50 border border-indigo-200 px-3.5 py-2 rounded-xl text-xs font-semibold text-[#2d4499]">
+            <i class="fas fa-shield-alt"></i>
+            <span>Tersedia Pembayaran Otomatis via Midtrans (Sandbox Demo)</span>
         </div>
     </div>
 
@@ -33,7 +48,7 @@
                             <th class="px-6 py-4">Tanggal Periksa</th>
                             <th class="px-6 py-4">Total Biaya</th>
                             <th class="px-6 py-4 text-center">Status Pembayaran</th>
-                            <th class="px-6 py-4 text-right">Aksi</th>
+                            <th class="px-6 py-4 text-right">Metode / Aksi Bayar</th>
                         </tr>
                     </thead>
 
@@ -105,13 +120,35 @@
                             {{-- Aksi --}}
                             <td class="px-6 py-4 text-right">
                                 @if(!$pembayaran || $pembayaran->status === 'ditolak')
-                                    <a href="{{ route('pasien.pembayaran.create', $periksa->id) }}"
-                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#2d4499] hover:bg-[#1e2d6b] text-white rounded-xl text-xs font-semibold shadow-sm transition">
-                                        <i class="fas fa-upload text-xs"></i>
-                                        Upload Bukti Bayar
-                                    </a>
-                                @else
-                                    <div class="inline-flex items-center gap-2">
+                                    <div class="flex items-center justify-end gap-2">
+                                        {{-- Tombol Bayar Otomatis Midtrans --}}
+                                        <button type="button"
+                                            id="btn-midtrans-{{ $periksa->id }}"
+                                            onclick="payWithMidtrans({{ $periksa->id }})"
+                                            class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-[#2d4499] to-indigo-600 hover:from-[#1e2d6b] hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition">
+                                            <i class="fas fa-bolt text-amber-300 text-xs"></i>
+                                            <span>Bayar Online (Midtrans)</span>
+                                        </button>
+
+                                        {{-- Opsi Upload Bukti Manual --}}
+                                        <a href="{{ route('pasien.pembayaran.create', $periksa->id) }}"
+                                            title="Upload Bukti Transfer Manual"
+                                            class="inline-flex items-center gap-1 px-3 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-xs font-semibold shadow-sm transition">
+                                            <i class="fas fa-upload text-xs"></i>
+                                            <span>Manual</span>
+                                        </a>
+                                    </div>
+                                @elseif($pembayaran->status === 'menunggu_verifikasi')
+                                    <div class="flex items-center justify-end gap-2">
+                                        @if($pembayaran->snap_token)
+                                        <button type="button"
+                                            id="btn-midtrans-{{ $periksa->id }}"
+                                            onclick="payWithMidtrans({{ $periksa->id }})"
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-[#2d4499] hover:bg-blue-100 rounded-lg text-xs font-semibold border border-blue-200 transition">
+                                            <i class="fas fa-credit-card text-xs"></i>
+                                            <span>Lanjut Bayar</span>
+                                        </button>
+                                        @endif
                                         @if($pembayaran->bukti_bayar)
                                         <a href="{{ asset('storage/' . $pembayaran->bukti_bayar) }}" target="_blank"
                                             class="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition">
@@ -119,9 +156,14 @@
                                             Lihat Bukti
                                         </a>
                                         @endif
-                                        @if($pembayaran->status === 'lunas')
-                                        <span class="text-xs font-bold text-emerald-600">Terverifikasi</span>
-                                        @endif
+                                    </div>
+                                @else
+                                    {{-- Lunas --}}
+                                    <div class="inline-flex items-center gap-2">
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                            <i class="fas fa-check-circle text-xs"></i>
+                                            <span>{{ $pembayaran->metode_pembayaran ?? 'Lunas' }}</span>
+                                        </span>
                                     </div>
                                 @endif
                             </td>
@@ -142,5 +184,63 @@
 
         </div>
     </div>
+
+    {{-- Script Integrasi Midtrans Snap --}}
+    <script>
+        function payWithMidtrans(periksaId) {
+            const btn = document.getElementById('btn-midtrans-' + periksaId);
+            const originalContent = btn ? btn.innerHTML : '';
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Menyiapkan...';
+            }
+
+            fetch("{{ url('/pasien/pembayaran') }}/" + periksaId + "/snap-token", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }
+
+                if (data.status === 'success' && data.snap_token) {
+                    window.snap.pay(data.snap_token, {
+                        onSuccess: function(result) {
+                            alert('Pembayaran berhasil! Status pembayaran Anda sedang diproses.');
+                            window.location.reload();
+                        },
+                        onPending: function(result) {
+                            alert('Menunggu penyelesaian pembayaran. Silakan selesaikan instruksi transfer/QRIS Anda.');
+                            window.location.reload();
+                        },
+                        onError: function(result) {
+                            alert('Pembayaran gagal atau dibatalkan.');
+                            window.location.reload();
+                        },
+                        onClose: function() {
+                            // Pasien menutup pop-up tanpa menyelesaikan pembayaran
+                        }
+                    });
+                } else {
+                    alert(data.message || 'Gagal memuat pembayaran Midtrans. Silakan coba metode transfer manual.');
+                }
+            })
+            .catch(err => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }
+                console.error(err);
+                alert('Terjadi kendala koneksi ke server. Silakan coba kembali.');
+            });
+        }
+    </script>
 
 </x-layouts.app>
