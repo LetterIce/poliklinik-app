@@ -18,7 +18,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
-    return view('welcome');
+    $polis = \App\Models\Poli::withCount('dokters')->get();
+    $jadwals = \App\Models\JadwalPeriksa::with(['dokter.poli'])->take(6)->get();
+    $dokterCount = \App\Models\User::where('role', 'dokter')->count();
+    $pasienCount = \App\Models\User::where('role', 'pasien')->count();
+    $poliCount = \App\Models\Poli::count();
+
+    return view('welcome', compact('polis', 'jadwals', 'dokterCount', 'pasienCount', 'poliCount'));
 });
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -103,4 +109,9 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () 
     Route::get('/pembayaran', [PasienPembayaranController::class, 'index'])->name('pasien.pembayaran.index');
     Route::get('/pembayaran/{id}/upload', [PasienPembayaranController::class, 'create'])->name('pasien.pembayaran.create');
     Route::post('/pembayaran/{id}/upload', [PasienPembayaranController::class, 'store'])->name('pasien.pembayaran.store');
+    Route::post('/pembayaran/{id}/snap-token', [PasienPembayaranController::class, 'getSnapToken'])->name('pasien.pembayaran.snap-token');
 });
+
+// ================= MIDTRANS WEBHOOK CALLBACK =================
+Route::match(['get', 'post'], '/api/midtrans-callback', [\App\Http\Controllers\Api\MidtransCallbackController::class, 'handle'])->name('midtrans.callback');
+Route::match(['get', 'post'], '/midtrans-callback', [\App\Http\Controllers\Api\MidtransCallbackController::class, 'handle']);
