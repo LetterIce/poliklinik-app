@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ObatController;
 use App\Http\Controllers\Dokter\JadwalPeriksaController;
 use App\Http\Controllers\Dokter\PeriksaPasienController;
 use App\Http\Controllers\Dokter\RiwayatPasienController;
+use App\Http\Controllers\Dokter\DashboardController as DokterDashboardController;
 use App\Http\Controllers\Admin\PembayaranController as AdminPembayaranController;
 use App\Http\Controllers\Pasien\DashboardController as PasienDashboardController;
 use App\Http\Controllers\Pasien\PoliController as PasienPoliController;
@@ -69,9 +70,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
 // ================= DOKTER ROUTES =================
 Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dokter.dashboard');
-    })->name('dokter.dashboard');
+    Route::get('/dashboard', [DokterDashboardController::class, 'index'])->name('dokter.dashboard');
 
     // Export Excel Dokter
     Route::get('/jadwal-periksa/export/excel', [JadwalPeriksaController::class, 'export'])->name('jadwal-periksa.export');
