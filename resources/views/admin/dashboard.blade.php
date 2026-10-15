@@ -18,7 +18,7 @@
             <a href="{{ route('admin.pembayaran.index') }}"
                 class="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-sm border border-slate-200 shadow-sm transition">
                 <i class="fas fa-file-invoice-dollar text-[#2d4499]"></i>
-                <span>Verifikasi Kasir</span>
+                <span>Verif Pembayaran</span>
                 @if($pembayaranPendingCount > 0)
                 <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-amber-500 text-white">
                     {{ $pembayaranPendingCount }}
@@ -63,7 +63,7 @@
             {{-- Col 1: Total Pendapatan Terverifikasi --}}
             <div class="space-y-1">
                 <span class="text-xs uppercase tracking-wider text-slate-300 font-bold block">
-                    Pendapatan Terverifikasi (Lunas)
+                    Pendapatan
                 </span>
                 <div class="text-3xl sm:text-4xl font-black font-mono text-emerald-400 tracking-tight">
                     Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
@@ -89,7 +89,7 @@
             {{-- Col 3: Status Verifikasi Kasir --}}
             <div class="space-y-2 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6">
                 <span class="text-xs uppercase tracking-wider text-slate-300 font-bold block">
-                    Status Verifikasi Kasir
+                    Status Verifikasi
                 </span>
                 @if($pembayaranPendingCount > 0)
                 <div class="flex items-center gap-2">
@@ -100,14 +100,14 @@
                 </div>
                 <a href="{{ route('admin.pembayaran.index') }}"
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 text-xs font-bold border border-amber-400/30 transition">
-                    <span>Verifikasi Sekarang</span>
+                    <span>Butuh Verifikasi</span>
                     <i class="fas fa-arrow-right text-[10px]"></i>
                 </a>
                 @else
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
                     <span class="text-base font-bold text-emerald-300">
-                        Seluruh Kasir Bersih
+                        Telah Diverifikasi
                     </span>
                 </div>
                 <p class="text-xs text-slate-300">Semua bukti bayar telah selesai diproses.</p>
@@ -175,7 +175,7 @@
         <a href="{{ route('obat.index') }}" class="card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-purple-300 transition group">
             <div class="flex items-center justify-between">
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Master Obat</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Stok Obat</span>
                     <span class="text-3xl font-black text-slate-800 mt-1 block">{{ $obatCount }}</span>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-sm group-hover:scale-105 transition">

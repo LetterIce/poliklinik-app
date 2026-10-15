@@ -17,12 +17,6 @@
             </h2>
             <p class="text-sm text-slate-500 mt-1">Daftar tagihan pemeriksaan medis dan status verifikasi pembayaran Anda.</p>
         </div>
-
-        {{-- Badge Informasi Layanan --}}
-        <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 px-3.5 py-2 rounded-xl text-xs font-semibold text-[#2d4499]">
-            <i class="fas fa-shield-halved text-emerald-600"></i>
-            <span>Mendukung Pembayaran Non-Tunai (QRIS & Virtual Account Bank)</span>
-        </div>
     </div>
 
     {{-- Alerts --}}

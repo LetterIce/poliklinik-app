@@ -7,11 +7,6 @@
                 <h2 class="text-2xl font-bold text-slate-800">
                     Dashboard Dokter
                 </h2>
-                @if(optional($dokter->poli)->nama_poli)
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#2d4499]/10 text-[#2d4499] border border-[#2d4499]/20">
-                    {{ $dokter->poli->nama_poli }}
-                </span>
-                @endif
             </div>
             <p class="text-sm text-slate-500 mt-1">
                 Selamat bertugas, <span class="font-semibold text-slate-700">dr. {{ $dokter->nama }}</span>! Kelola antrean pasien dan pemeriksaan medis hari ini.
@@ -93,7 +88,7 @@
                 </div>
             </div>
             <div class="mt-3 text-xs text-slate-500">
-                Akumulasi seluruh rekam periksa
+                Akumulasi seluruh rekam medis
             </div>
         </div>
 
@@ -117,7 +112,7 @@
             <div class="mt-3 text-xs">
                 @if($jadwalHariIni)
                     <span class="text-emerald-600 font-semibold flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Praktik Aktif Hari Ini
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Praktik Hari Ini
                     </span>
                 @else
                     <span class="text-slate-400 font-medium">Jadwal libur hari ini</span>
@@ -137,9 +132,6 @@
 
         <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div class="space-y-2 max-w-xl">
-                <span class="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 inline-block">
-                    Ruang Pelayanan Aktif
-                </span>
                 <h3 class="text-2xl font-black tracking-tight text-white">
                     Poli {{ optional($dokter->poli)->nama_poli ?? 'Umum' }}
                 </h3>

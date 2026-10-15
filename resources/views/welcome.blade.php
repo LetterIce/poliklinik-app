@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PoliSehat</title>
+    <title>Poliklinik</title>
 
     <!-- Google Fonts Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,6 +77,18 @@
         .mascot-bounce:active {
             transform: scale(0.95);
         }
+
+        /* Scroll Reveal Soft Animation */
+        .reveal-soft {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+        .reveal-soft.is-revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-[#2d4499] selection:text-white">
@@ -87,12 +99,10 @@
             
             {{-- Brand Logo --}}
             <a href="/" class="flex items-center gap-3.5 group">
-                <div class="w-11 h-11 rounded-2xl bg-[#2d4499] text-white flex items-center justify-center shadow-md shadow-indigo-950/20 group-hover:scale-105 transition-transform duration-200">
-                    <i class="fas fa-hospital-user text-xl"></i>
-                </div>
+
                 <div>
                     <span class="font-extrabold text-xl tracking-tight text-slate-900 block leading-tight">
-                        Poli<span class="text-[#2d4499]">Sehat</span>
+                        Poli<span class="text-[#2d4499]">Klinik</span>
                     </span>
                     <span class="text-[11px] font-semibold text-slate-400 tracking-wider uppercase block">Klinik Terakreditasi</span>
                 </div>
@@ -105,7 +115,6 @@
                 <a href="#fasilitas" class="hover:text-[#2d4499] transition">Fasilitas</a>
                 <a href="#alur" class="hover:text-[#2d4499] transition">Alur Pasien</a>
                 <a href="#jadwal" class="hover:text-[#2d4499] transition">Jadwal Praktik</a>
-                <a href="#pembayaran" class="hover:text-[#2d4499] transition">Metode Pembayaran</a>
             </nav>
 
             {{-- Action Buttons --}}
@@ -141,8 +150,8 @@
     </header>
 
     {{-- ================= HERO SECTION ================= --}}
-    <section id="beranda" class="hero-pattern pt-12 pb-20 lg:pt-20 lg:pb-32 overflow-hidden border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="beranda" class="hero-pattern min-h-[calc(100vh-5rem)] flex flex-col justify-center py-12 lg:py-16 overflow-hidden border-b border-slate-200 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 
                 {{-- Left Text --}}
@@ -150,12 +159,12 @@
 
                     {{-- Main Headline --}}
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.18]">
-                        Kesehatan Keluarga Anda, <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#2d4499] via-indigo-600 to-blue-600">Prioritas Utama Kami.</span>
+                        Merawat Anda Sepenuh Hati, <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#2d4499] via-indigo-600 to-blue-600">Seperti Keluarga Sendiri.</span>
                     </h1>
 
                     {{-- Subheadline Medis --}}
                     <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
-                        Klinik rawat jalan terpadu dengan dokter spesialis berpengalaman. Nikmati kemudahan pendaftaran antrian secara daring, pemantauan giliran periksa secara transparan, dan rekam medis digital yang aman.
+                        Kami memahami betapa berharganya waktu dan kesehatan Anda. Hadir untuk memberikan perawatan terbaik tanpa proses yang rumit.
                     </p>
 
                     {{-- CTA Buttons --}}
@@ -213,69 +222,20 @@
                         <div class="absolute bottom-6 right-8 text-xl anim-twinkle select-none pointer-events-none z-20" style="animation-delay: -1.2s;">✨</div>
 
                         {{-- Floating Speech Bubble --}}
-                        <div class="absolute -top-6 right-2 sm:right-6 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2 anim-float-fast z-30">
+                        <div class="absolute -top-7 right-4 sm:right-10 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2 anim-float-fast z-30">
                             <span class="text-sm">👋</span>
                             <span class="text-xs font-bold text-slate-700">Yuk, jaga kesehatanmu!</span>
-                            <div class="absolute -bottom-1.5 right-6 w-3 h-3 bg-white rotate-45 border-r border-b border-slate-100"></div>
+                            {{-- Pointer tail pointing down-left toward doctor --}}
+                            <div class="absolute -bottom-1.5 left-6 w-3 h-3 bg-white rotate-45 border-r border-b border-slate-100"></div>
                         </div>
 
                         {{-- Main Cartoon Character (Animated) --}}
                         <div class="relative z-10 w-full flex items-center justify-center p-2">
                             <img src="{{ asset('images/hero-mascot-original.png') }}"
-                                 alt="Karakter Medis Kartun PoliSehat"
+                                 alt="Karakter Medis Kartun Poliklinik"
                                  id="heroMascot"
                                  class="w-full max-w-[340px] sm:max-w-[400px] object-contain drop-shadow-2xl anim-float-slow transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer select-none"
                                  title="Klik aku untuk sapaan hangat!">
-                        </div>
-
-                        {{-- Floating Card 1 (Top Left): Dokter Siaga --}}
-                        <div class="absolute -top-3 -left-3 sm:-left-8 bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-xl border border-slate-100/80 flex items-center gap-3 anim-float-reverse z-20 hover:scale-105 transition-transform">
-                            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg font-bold shadow-sm">
-                                🩺
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                                    <span class="text-xs font-bold text-slate-800">Dokter Siaga</span>
-                                </div>
-                                <span class="text-[10px] text-slate-500 font-medium">Pelayanan Rawat Jalan</span>
-                            </div>
-                        </div>
-
-                        {{-- Floating Card 2 (Top Right): Antrian Aktif Terpantau --}}
-                        <div class="absolute top-12 -right-2 sm:-right-8 bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-xl border border-slate-100/80 flex items-center gap-3 anim-float-slow z-20 hover:scale-105 transition-transform" style="animation-delay: -1.8s;">
-                            <div class="w-9 h-9 rounded-xl bg-indigo-100 text-[#2d4499] flex items-center justify-center text-lg shadow-sm">
-                                ⚡
-                            </div>
-                            <div>
-                                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Antrian Terkini</span>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="text-sm font-black text-slate-900 font-mono">A - 012</span>
-                                    <span class="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded-full">Poli Umum</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Floating Card 3 (Bottom Left): Resep Apotek Digital --}}
-                        <div class="absolute -bottom-4 -left-3 sm:-left-8 bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-xl border border-slate-100/80 flex items-center gap-3 anim-float-slow z-20 hover:scale-105 transition-transform" style="animation-delay: -3s;">
-                            <div class="w-9 h-9 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center text-lg shadow-sm">
-                                💊
-                            </div>
-                            <div>
-                                <span class="text-xs font-bold text-slate-800 block">Resep Obat Resmi</span>
-                                <span class="text-[10px] text-slate-500 font-medium">Pengambilan Cepat & Akurat</span>
-                            </div>
-                        </div>
-
-                        {{-- Floating Card 4 (Bottom Right): Pembayaran QRIS & VA --}}
-                        <div class="absolute -bottom-2 -right-2 sm:-right-6 bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-xl border border-slate-100/80 flex items-center gap-3 anim-float-reverse z-20 hover:scale-105 transition-transform" style="animation-delay: -4s;">
-                            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-base shadow-sm">
-                                <i class="fas fa-qrcode"></i>
-                            </div>
-                            <div>
-                                <span class="text-xs font-bold text-slate-800 block">Pembayaran Instan</span>
-                                <span class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded-full inline-block">QRIS & VA Midtrans</span>
-                            </div>
                         </div>
 
                     </div>
@@ -286,61 +246,68 @@
     </section>
 
     {{-- ================= FASILITAS & KEUNGGULAN ================= --}}
-    <section id="fasilitas" class="py-16 bg-white border-b border-slate-200">
+    <section id="fasilitas" class="py-20 lg:py-28 bg-white border-b border-slate-200 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <div class="text-center max-w-2xl mx-auto mb-12">
-                </span>
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-                    Fasilitas & Keunggulan Pelayanan
+            {{-- Header Fasilitas dengan Animasi Soft Reveal --}}
+            <div class="text-center max-w-2xl mx-auto mb-14 reveal-soft">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+                    Mengapa Memilih Kami?
                 </h2>
-                <p class="text-xs sm:text-sm text-slate-500 mt-1">Kami berkomitmen memberikan pelayanan medis bermutu tinggi dan berorientasi pada keselamatan pasien.</p>
+                <p class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">Pelayanan medis berkualitas dengan kenyamanan dan keselamatan pasien sebagai prioritas utama.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 
                 {{-- Fasilitas 1 --}}
-                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-md transition">
-                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-[#2d4499] flex items-center justify-center text-xl mb-4">
-                        <i class="fas fa-display"></i>
+                <div class="reveal-soft" style="transition-delay: 100ms;">
+                    <div class="h-full p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-xl bg-blue-100 text-[#2d4499] flex items-center justify-center text-xl mb-4">
+                            <i class="fas fa-display"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-1.5">Bebas Antre & Nyaman</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            Pantau nomor antrean langsung dari HP Anda. Tidak perlu lagi berdesakan atau menunggu lama di ruang tunggu.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Sistem Antrian Terintegrasi</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Pantau giliran pemeriksaan dari perangkat Anda tanpa harus berkerumun lama di ruang tunggu klinik.
-                    </p>
                 </div>
 
                 {{-- Fasilitas 2 --}}
-                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-emerald-200 hover:shadow-md transition">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl mb-4">
-                        <i class="fas fa-user-doctor"></i>
+                <div class="reveal-soft" style="transition-delay: 200ms;">
+                    <div class="h-full p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-emerald-200 hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl mb-4">
+                            <i class="fas fa-user-doctor"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-1.5">Dokter Spesialis Berpengalaman</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            Pemeriksaan menyeluruh oleh dokter ahli berpengalaman dan penuh kehati-hatian.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Dokter Spesialis Berpengalaman</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Pemeriksaan dilakukan secara komprehensif oleh dokter ahli bersertifikasi dengan empati dan kehati-hatian.
-                    </p>
                 </div>
 
                 {{-- Fasilitas 3 --}}
-                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-purple-200 hover:shadow-md transition">
-                    <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl mb-4">
-                        <i class="fas fa-pills"></i>
+                <div class="reveal-soft" style="transition-delay: 300ms;">
+                    <div class="h-full p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-purple-200 hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl mb-4">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-1.5">Resep Tepat & Aman</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            Layanan farmasi terpadu yang memastikan ketersediaan obat asli dengan penjelasan aturan pakai yang jelas.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Instalasi Farmasi Lengkap</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Penyediaan obat-obatan asli berkualitas tinggi sesuai dengan resep dan petunjuk penggunaan dokter.
-                    </p>
                 </div>
 
                 {{-- Fasilitas 4 --}}
-                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-200 hover:shadow-md transition">
-                    <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl mb-4">
-                        <i class="fas fa-receipt"></i>
+                <div class="reveal-soft" style="transition-delay: 400ms;">
+                    <div class="h-full p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-200 hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl mb-4">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-1.5">Biaya Transparan</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            Sistem tagihan yang transparan membuat Anda bisa fokus sepenuhnya pada kesembuhan.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1.5">Rincian Biaya Transparan</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Rincian jasa medis dan harga resep obat tercatat dengan jelas tanpa ada biaya tersembunyi.
-                    </p>
                 </div>
 
             </div>
@@ -348,57 +315,59 @@
     </section>
 
     {{-- ================= SECTION LAYANAN POLI SPESIALIS ================= --}}
-    <section id="layanan" class="py-16 bg-slate-50 border-b border-slate-200">
+    <section id="layanan" class="py-20 bg-slate-50 border-b border-slate-200 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            <div class="text-center max-w-2xl mx-auto mb-16">
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3 tracking-tight">
+            <div class="text-center max-w-2xl mx-auto mb-16 reveal-soft">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                     Layanan Medis Spesialis
                 </h2>
                 <p class="text-sm text-slate-500 mt-2 leading-relaxed">
-                    Tersedia berbagai poliklinik dengan sarana diagnostik modern untuk memenuhi kebutuhan kesehatan Anda dan keluarga.
+                    Berbagai pilihan poliklinik dengan peralatan medis modern, siap memberikan penanganan yang akurat dan tepat untuk Anda sekeluarga.
                 </p>
             </div>
 
             {{-- Grid Poli --}}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @forelse($polis as $poli)
-                <div class="card bg-white shadow-md hover:shadow-xl rounded-2xl border border-slate-200/90 transition-all duration-300 hover:-translate-y-1">
-                    <div class="p-7">
-                        <div class="flex items-center justify-between mb-5">
-                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#2d4499] flex items-center justify-center text-xl font-bold border border-blue-100">
-                                <i class="fas fa-stethoscope"></i>
+                <div class="reveal-soft" style="transition-delay: {{ ($loop->index % 3) * 120 }}ms;">
+                    <div class="h-full card bg-white shadow-md hover:shadow-xl rounded-2xl border border-slate-200/90 transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between">
+                        <div class="p-7 flex flex-col h-full">
+                            <div class="flex items-center justify-between mb-5">
+                                <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#2d4499] flex items-center justify-center text-xl font-bold border border-blue-100">
+                                    <i class="fas fa-stethoscope"></i>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
+                                    {{ $poli->dokters_count ?? 0 }} Dokter Praktik
+                                </span>
                             </div>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
-                                {{ $poli->dokters_count ?? 0 }} Dokter Praktik
-                            </span>
-                        </div>
 
-                        <h3 class="text-xl font-bold text-slate-900 mb-2">
-                            {{ $poli->nama_poli }}
-                        </h3>
-                        <p class="text-slate-500 text-xs leading-relaxed line-clamp-3 mb-6">
-                            {{ $poli->keterangan ?: 'Layanan pemeriksaan kesehatan spesialis dengan dokter berpengalaman dan penanganan medis komprehensif.' }}
-                        </p>
+                            <h3 class="text-xl font-bold text-slate-900 mb-2">
+                                {{ $poli->nama_poli }}
+                            </h3>
+                            <p class="text-slate-500 text-xs leading-relaxed line-clamp-3 mb-6 flex-grow">
+                                {{ $poli->keterangan ?: 'Layanan pemeriksaan kesehatan spesialis dengan dokter berpengalaman dan penanganan medis komprehensif.' }}
+                            </p>
 
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
-                            <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
-                                <i class="fas fa-circle-check text-[10px]"></i> Sesuai Jadwal Praktik
-                            </span>
-                            @auth
-                                <a href="{{ route('pasien.daftar') }}" class="text-xs font-bold text-[#2d4499] hover:underline flex items-center gap-1">
-                                    Daftar Periksa <i class="fas fa-arrow-right text-[10px]"></i>
-                                </a>
-                            @else
-                                <a href="{{ route('login') }}" class="text-xs font-bold text-[#2d4499] hover:underline flex items-center gap-1">
-                                    Pilih Jadwal <i class="fas fa-arrow-right text-[10px]"></i>
-                                </a>
-                            @endauth
+                            <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                                <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                                    <i class="fas fa-circle-check text-[10px]"></i> Sesuai Jadwal Praktik
+                                </span>
+                                @auth
+                                    <a href="{{ route('pasien.daftar') }}" class="text-xs font-bold text-[#2d4499] hover:underline flex items-center gap-1">
+                                        Daftar Periksa <i class="fas fa-arrow-right text-[10px]"></i>
+                                    </a>
+                                @else
+                                    <a href="{{ route('login') }}" class="text-xs font-bold text-[#2d4499] hover:underline flex items-center gap-1">
+                                        Pilih Jadwal <i class="fas fa-arrow-right text-[10px]"></i>
+                                    </a>
+                                @endauth
+                            </div>
                         </div>
                     </div>
                 </div>
                 @empty
-                <div class="col-span-3 text-center py-12 text-slate-400">
+                <div class="col-span-3 text-center py-12 text-slate-400 reveal-soft">
                     Daftar poliklinik sedang diperbarui.
                 </div>
                 @endforelse
@@ -408,62 +377,70 @@
     </section>
 
     {{-- ================= ALUR PASIEN ================= --}}
-    <section id="alur" class="py-16 bg-white border-b border-slate-200">
+    <section id="alur" class="py-20 bg-white border-b border-slate-200 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            <div class="text-center max-w-2xl mx-auto mb-16">
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3 tracking-tight">
-                    Tahapan Praktis Pelayanan Pasien
+            <div class="text-center max-w-2xl mx-auto mb-16 reveal-soft">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                   Kemudahan Berobat dalam 4 Langkah
                 </h2>
-                <p class="text-sm text-slate-500 mt-2">
-                    Dirancang untuk kenyamanan, efisiensi waktu, dan kepuasan pasien sejak pendaftaran hingga pemulihan.
+                <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                    Kami memastikan setiap tahap kunjungan Anda berjalan lancar, jelas, dan tanpa ribet.
                 </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
                 
                 {{-- Step 1 --}}
-                <div class="text-center p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
-                    <div class="w-12 h-12 rounded-full bg-[#2d4499] text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
-                        1
+                <div class="reveal-soft" style="transition-delay: 100ms;">
+                    <div class="h-full text-center p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-full bg-[#2d4499] text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
+                            1
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-2">Lengkapi Data Diri</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            Cukup sekali daftar untuk mengamankan rekam medis dan riwayat kesehatan Anda.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">Registrasi Pasien</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Lengkapi data diri pasien untuk pencatatan rekam medis yang valid dan terorganisir.
-                    </p>
                 </div>
 
                 {{-- Step 2 --}}
-                <div class="text-center p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
-                    <div class="w-12 h-12 rounded-full bg-[#2d4499] text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
-                        2
+                <div class="reveal-soft" style="transition-delay: 200ms;">
+                    <div class="h-full text-center p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-full bg-[#2d4499] text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
+                            2
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-2">Atur Waktu Kunjungan</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            Pilih jadwal dokter favorit Anda dan dapatkan kepastian nomor urut pemeriksaan.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">Pilih Dokter & Jadwal</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Pilih poli tujuan dan dokter pemeriksa, lalu dapatkan nomor antrian resmi poliklinik.
-                    </p>
                 </div>
 
                 {{-- Step 3 --}}
-                <div class="text-center p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
-                    <div class="w-12 h-12 rounded-full bg-[#2d4499] text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
-                        3
+                <div class="reveal-soft" style="transition-delay: 300ms;">
+                    <div class="h-full text-center p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-full bg-[#2d4499] text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
+                            3
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-2">Konsultasi Tatap Muka</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            Konsultasi nyaman dan pemeriksaan menyeluruh langsung bersama dokter ahli.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">Pemeriksaan Dokter</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Konsultasi dan pemeriksaan klinis oleh dokter spesialis, serta penetapan anjuran medis.
-                    </p>
                 </div>
 
                 {{-- Step 4 --}}
-                <div class="text-center p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
-                    <div class="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
-                        4
+                <div class="reveal-soft" style="transition-delay: 400ms;">
+                    <div class="h-full text-center p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-emerald-200 hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-extrabold text-lg mx-auto mb-4 shadow-md">
+                            4
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-2">Selesai Tanpa Kendala</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            Ambil obat yang diresepkan dan lakukan pembayaran dengan berbagai opsi transaksi yang fleksibel.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">Penebusan Obat & Kasir</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Ambil obat di farmasi klinik dan selesaikan pembayaran secara non-tunai atau tunai dengan mudah.
-                    </p>
                 </div>
 
             </div>
@@ -472,49 +449,53 @@
     </section>
 
     {{-- ================= JADWAL DOKTER SPESIALIS ================= --}}
-    <section id="jadwal" class="py-16 bg-slate-50 border-b border-slate-200">
+    <section id="jadwal" class="py-20 bg-slate-50 border-b border-slate-200 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            <div class="flex flex-wrap items-center justify-center gap-4 mb-12 text-center">
+            <div class="flex flex-wrap items-center justify-center gap-4 mb-14 text-center reveal-soft">
                 <div>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2 tracking-tight">
-                        Jadwal Kehadiran Dokter Spesialis
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                        Jadwal Praktik Dokter
                     </h2>
-                    <p class="text-sm text-slate-500 mt-1">Jadwal praktik dokter spesialis rawat jalan tertera di bawah ini untuk kemudahan konsultasi Anda.</p>
+                    <p class="text-sm text-slate-500 mt-2 leading-relaxed">Cek kepastian hari dan jam praktik dokter spesialis pilihan Anda di bawah ini.</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @forelse($jadwals as $jadwal)
-                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-[#2d4499] flex items-center justify-center font-bold text-sm">
-                                <i class="fas fa-user-doctor"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-slate-800 text-sm">{{ optional($jadwal->dokter)->nama ?? 'Dokter' }}</h3>
-                                <p class="text-xs text-slate-400">{{ optional($jadwal->dokter->poli)->nama_poli ?? 'Poliklinik' }}</p>
+                <div class="reveal-soft" style="transition-delay: {{ ($loop->index % 3) * 120 }}ms;">
+                    <div class="h-full bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-[#2d4499] flex items-center justify-center font-bold text-sm">
+                                        <i class="fas fa-user-doctor"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-slate-800 text-sm">{{ optional($jadwal->dokter)->nama ?? 'Dokter' }}</h3>
+                                        <p class="text-xs text-slate-400">{{ optional($jadwal->dokter->poli)->nama_poli ?? 'Poliklinik' }}</p>
+                                    </div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    Praktik
+                                </span>
                             </div>
                         </div>
-                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            Praktik
-                        </span>
-                    </div>
 
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-calendar-day text-[#2d4499]"></i>
-                            <span>{{ $jadwal->hari }}</span>
-                        </div>
-                        <div class="flex items-center gap-2 font-mono text-slate-600">
-                            <i class="fas fa-clock text-slate-400"></i>
-                            <span>{{ date('H:i', strtotime($jadwal->jam_mulai)) }} - {{ date('H:i', strtotime($jadwal->jam_selesai)) }} WIB</span>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700 mt-2">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-calendar-day text-[#2d4499]"></i>
+                                <span>{{ $jadwal->hari }}</span>
+                            </div>
+                            <div class="flex items-center gap-2 font-mono text-slate-600">
+                                <i class="fas fa-clock text-slate-400"></i>
+                                <span>{{ date('H:i', strtotime($jadwal->jam_mulai)) }} - {{ date('H:i', strtotime($jadwal->jam_selesai)) }} WIB</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 @empty
-                <div class="col-span-3 text-center py-10 text-slate-400">
+                <div class="col-span-3 text-center py-10 text-slate-400 reveal-soft">
                     Jadwal praktik dokter sedang disinkronkan.
                 </div>
                 @endforelse
@@ -524,20 +505,17 @@
     </section>
 
     {{-- ================= FOOTER RUMAH SAKIT LENGKAP ================= --}}
-    <footer id="kontak" class="bg-slate-900 text-slate-400 text-xs py-14">
+    <footer id="kontak" class="bg-slate-900 text-slate-400 text-xs py-16 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-slate-800">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-slate-800 reveal-soft">
                 
                 {{-- Col 1: Identitas Klinik --}}
                 <div class="md:col-span-2 space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-[#2d4499] text-white flex items-center justify-center font-bold">
-                            <i class="fas fa-hospital-user text-base"></i>
-                        </div>
-                        <span class="font-extrabold text-xl text-white tracking-tight">Poli<span class="text-blue-400">Sehat</span></span>
+                        <span class="font-extrabold text-xl text-white tracking-tight">Poli<span class="text-blue-400">Klinik</span></span>
                     </div>
                     <p class="text-slate-400 leading-relaxed max-w-md">
-                        Klinik Pratama Poliklinik Sehat berdedikasi memberikan pelayanan rawat jalan profesional yang mengutamakan mutu, keramahan, dan pemanfaatan sistem manajemen medis modern.
+                        Berdedikasi memberikan pelayanan rawat jalan profesional yang mengutamakan mutu, standar, dan pemanfaatan sistem manajemen medis modern.
                     </p>
                     <div class="flex items-center gap-3 pt-2">
                         <a href="#" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center hover:bg-[#2d4499] transition">
@@ -587,7 +565,7 @@
 
             {{-- Copyright & Legal --}}
             <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-                <p>&copy; {{ date('Y') }} Klinik Pratama Poliklinik Sehat. Seluruh Hak Cipta Dilindungi.</p>
+                <p>&copy; {{ date('Y') }} PoliKlinik. Seluruh Hak Cipta Dilindungi.</p>
                 <div class="flex items-center gap-6">
                     <a href="#" class="hover:text-slate-300 transition">Kebijakan Privasi Pasien</a>
                     <a href="#" class="hover:text-slate-300 transition">Tata Tertib Pelayanan</a>
@@ -626,6 +604,27 @@
                     mascot.style.transform = '';
                 }, 300);
             });
+
+            // Scroll Reveal Animation (Soft Entrance on Scroll)
+            const revealElements = document.querySelectorAll('.reveal-soft');
+            if (revealElements.length > 0 && 'IntersectionObserver' in window) {
+                const revealObserver = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-revealed');
+                            revealObserver.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.15,
+                    rootMargin: '0px 0px -40px 0px'
+                });
+
+                revealElements.forEach((el) => revealObserver.observe(el));
+            } else {
+                // Fallback jika browser tidak mendukung observer
+                revealElements.forEach((el) => el.classList.add('is-revealed'));
+            }
         });
     </script>
 </body>

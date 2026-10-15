@@ -7,7 +7,7 @@
                 Dashboard Pasien
             </h2>
             <p class="text-sm text-slate-500 mt-0.5">
-                Selamat datang, <span class="font-semibold text-slate-700">{{ $user->nama }}</span>! Pantau antrean aktif dan jadwal dokter secara real-time.
+                Selamat datang, <span class="font-semibold text-slate-700">{{ $user->nama }}</span>! Pantau antrean dan jadwal dokter secara berkala.
             </p>
         </div>
 
