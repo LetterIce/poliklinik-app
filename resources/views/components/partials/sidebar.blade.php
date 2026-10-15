@@ -10,17 +10,21 @@
                     Poliklinik
                 </div>
 
-                @if(request()->is('admin*'))
+                @php
+                    $role = auth()->user()->role ?? null;
+                @endphp
+
+                @if($role === 'admin' || request()->is('admin*'))
                 <span
                     class="text-[10px] font-bold uppercase tracking-wider bg-indigo-400/20 text-indigo-300 border border-indigo-400/30 px-2 py-0.5 rounded-md">
                     Admin
                 </span>
-                @elseif(request()->is('dokter*'))
+                @elseif($role === 'dokter' || request()->is('dokter*'))
                 <span
                     class="text-[10px] font-bold uppercase tracking-wider bg-purple-400/20 text-purple-300 border border-purple-400/30 px-2 py-0.5 rounded-md">
                     Dokter
                 </span>
-                @elseif(request()->is('pasien*'))
+                @elseif($role === 'pasien' || request()->is('pasien*'))
                 <span
                     class="text-[10px] font-bold uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-md">
                     Pasien
@@ -42,7 +46,7 @@
 
 
         {{-- ================= ADMIN ================= --}}
-        @if(request()->is('admin*'))
+        @if($role === 'admin' || request()->is('admin*'))
 
         <p class="text-xs font-bold uppercase tracking-widest text-indigo-400 px-3 mb-3">
             Menu Admin
@@ -85,7 +89,7 @@
 
 
         {{-- ================= PASIEN ================= --}}
-        @if(request()->is('pasien*'))
+        @if($role === 'pasien' || request()->is('pasien*'))
 
         <p class="text-xs uppercase tracking-widest text-indigo-400 px-3 mb-3 mt-6">
             Menu Pasien
@@ -119,7 +123,7 @@
 
 
         {{-- ================= DOKTER ================= --}}
-        @if(request()->is('dokter*'))
+        @if($role === 'dokter' || request()->is('dokter*'))
 
         <p class="text-xs uppercase tracking-widest text-indigo-400 px-3 mb-3 mt-6">
             Menu Dokter
