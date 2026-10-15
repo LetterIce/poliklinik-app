@@ -104,7 +104,7 @@
                     <span class="font-extrabold text-xl tracking-tight text-slate-900 block leading-tight">
                         Poli<span class="text-[#2d4499]">Klinik</span>
                     </span>
-                    <span class="text-[11px] font-semibold text-slate-400 tracking-wider uppercase block">Klinik Terakreditasi</span>
+                    <span class="text-[11px] font-semibold text-slate-400 tracking-wider uppercase block">peduli keluarga</span>
                 </div>
             </a>
 

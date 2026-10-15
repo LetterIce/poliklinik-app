@@ -28,7 +28,7 @@
 
     @if(isset($antrianAktif) && $antrianAktif)
     {{-- Banner Antrean Aktif (Mencegah Daftar Poli Kedua) --}}
-    <div class="card bg-amber-50 border border-amber-200 rounded-2xl shadow-sm mb-6 max-w-2xl p-6">
+    <div class="card bg-amber-50 border border-amber-200 rounded-2xl shadow-sm mb-6 w-full p-6">
         <div class="flex items-start gap-4">
             <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 text-lg">
                 <i class="fas fa-clock"></i>
@@ -70,7 +70,7 @@
     </div>
     @endif
 
-    <div class="card bg-base-100 shadow-md rounded-2xl border border-slate-200 max-w-2xl {{ (isset($antrianAktif) && $antrianAktif) ? 'opacity-60 pointer-events-none select-none' : '' }}">
+    <div class="card bg-base-100 shadow-md rounded-2xl border border-slate-200 w-full {{ (isset($antrianAktif) && $antrianAktif) ? 'opacity-60 pointer-events-none select-none' : '' }}">
         <div class="card-body p-7">
 
             <form action="{{ route('pasien.daftar.submit') }}" method="POST">
