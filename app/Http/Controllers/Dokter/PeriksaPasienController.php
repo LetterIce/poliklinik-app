@@ -34,11 +34,11 @@ class PeriksaPasienController extends Controller
     {
         $daftarPoli = DaftarPoli::with(['pasien', 'jadwalPeriksa.dokter.poli'])->findOrFail($id);
 
-        broadcast(new AntrianUpdated(
+        AntrianUpdated::dispatchSafe(
             $daftarPoli->id_jadwal,
             $daftarPoli->no_antrian,
             "Nomor antrean {$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) sedang dipanggil."
-        ));
+        );
 
         return redirect()->back()->with('success', "Nomor antrean #{$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) berhasil dipanggil ke ruang periksa!");
     }
@@ -49,7 +49,7 @@ class PeriksaPasienController extends Controller
         $obats = Obat::all();
 
         // Broadcast bahwa nomor antrean ini sedang dipanggil/dilayani
-        broadcast(new AntrianUpdated($daftarPoli->id_jadwal, $daftarPoli->no_antrian));
+        AntrianUpdated::dispatchSafe($daftarPoli->id_jadwal, $daftarPoli->no_antrian);
 
         return view('dokter.periksa-pasien.create', compact('obats', 'id', 'daftarPoli'));
     }
@@ -89,7 +89,7 @@ class PeriksaPasienController extends Controller
                 ->value('no_antrian');
 
             // Broadcast real-time update ke dashboard pasien via Reverb
-            broadcast(new AntrianUpdated($daftarPoli->id_jadwal, $nextNomor ?? 'Selesai'));
+            AntrianUpdated::dispatchSafe($daftarPoli->id_jadwal, $nextNomor ?? 'Selesai');
         }
 
         return redirect()

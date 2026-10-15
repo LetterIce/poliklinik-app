@@ -22,6 +22,18 @@ class AntrianUpdated implements ShouldBroadcastNow
     public $message;
 
     /**
+     * Broadcast event secara aman tanpa membuat aplikasi error jika Reverb belum jalan
+     */
+    public static function dispatchSafe(...$args): void
+    {
+        try {
+            broadcast(new static(...$args));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('WebSocket Reverb offline/unreachable: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Create a new event instance.
      */
     public function __construct($idJadwal = null, $nomorSedangDilayani = null, $message = null)

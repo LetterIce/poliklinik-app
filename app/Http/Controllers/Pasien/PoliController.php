@@ -64,7 +64,7 @@ class PoliController extends Controller
         ]);
 
         // Broadcast real-time antrian via Reverb
-        broadcast(new AntrianUpdated($request->id_jadwal));
+        AntrianUpdated::dispatchSafe($request->id_jadwal);
 
         return redirect()
             ->route('pasien.dashboard')

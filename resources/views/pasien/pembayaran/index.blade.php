@@ -196,40 +196,78 @@
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Menyiapkan...';
             }
 
-            fetch("{{ url('/pasien/pembayaran') }}/" + periksaId + "/snap-token", {
+            fetch('/pasien/pembayaran/' + periksaId + '/snap-token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 }
             })
-            .then(res => res.json())
+            .then(async res => {
+                const data = await res.json().catch(() => null);
+                if (!res.ok) {
+                    throw new Error((data && data.message) ? data.message : ('Gagal menghubungi server (Status: ' + res.status + ')'));
+                }
+                return data;
+            })
             .then(data => {
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = originalContent;
                 }
 
-                if (data.status === 'success' && data.snap_token) {
+                if (data && data.status === 'success' && data.snap_token) {
+                    if (typeof window.snap === 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Memuat Komponen Pembayaran',
+                            text: 'Modul Midtrans Snap belum selesai dimuat. Silakan refresh halaman dan coba lagi.',
+                            confirmButtonColor: '#2d4499'
+                        });
+                        return;
+                    }
+
                     window.snap.pay(data.snap_token, {
                         onSuccess: function(result) {
-                            alert('Pembayaran berhasil! Status pembayaran Anda sedang diproses.');
-                            window.location.reload();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Pembayaran Berhasil!',
+                                text: 'Pembayaran Anda telah diterima. Sistem sedang memperbarui status transaksi Anda.',
+                                confirmButtonColor: '#2d4499'
+                            }).then(() => {
+                                window.location.reload();
+                            });
                         },
                         onPending: function(result) {
-                            alert('Menunggu penyelesaian pembayaran. Silakan selesaikan instruksi transfer/QRIS Anda.');
-                            window.location.reload();
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Menunggu Pembayaran',
+                                text: 'Silakan selesaikan pembayaran sesuai instruksi QRIS / Virtual Account yang dipilih.',
+                                confirmButtonColor: '#2d4499'
+                            }).then(() => {
+                                window.location.reload();
+                            });
                         },
                         onError: function(result) {
-                            alert('Pembayaran gagal atau dibatalkan.');
-                            window.location.reload();
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Pembayaran Tidak Berhasil',
+                                text: 'Transaksi dibatalkan atau gagal diproses oleh penyedia pembayaran.',
+                                confirmButtonColor: '#2d4499'
+                            });
                         },
                         onClose: function() {
                             // Pasien menutup pop-up tanpa menyelesaikan pembayaran
                         }
                     });
                 } else {
-                    alert(data.message || 'Gagal memuat pembayaran Midtrans. Silakan coba metode transfer manual.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Memproses Pembayaran',
+                        text: (data && data.message) ? data.message : 'Gagal memuat pembayaran Midtrans. Silakan coba metode transfer manual.',
+                        confirmButtonColor: '#2d4499'
+                    });
                 }
             })
             .catch(err => {
@@ -238,7 +276,12 @@
                     btn.innerHTML = originalContent;
                 }
                 console.error(err);
-                alert('Terjadi kendala koneksi ke server. Silakan coba kembali.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kendala Koneksi',
+                    text: err.message || 'Terjadi kendala koneksi ke server. Silakan coba kembali.',
+                    confirmButtonColor: '#2d4499'
+                });
             });
         }
     </script>
