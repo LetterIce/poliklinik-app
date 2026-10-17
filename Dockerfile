@@ -19,7 +19,7 @@ RUN npm run build
 # ==========================================
 # 2. PHP-FPM Application Environment
 # ==========================================
-FROM php:8.3-fpm-bookworm
+FROM php:8.4-fpm-bookworm
 
 # Set working directory
 WORKDIR /var/www
