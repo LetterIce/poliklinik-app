@@ -1,0 +1,114 @@
+services:
+  # 1. Laravel App (PHP-FPM)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: poliklinik-app:latest
+    container_name: poliklinik-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - app_public:/var/www/public
+      - storage_data:/var/www/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - poliklinik-network
+
+  # 2. Web Server (Nginx)
+  web:
+    image: nginx:alpine
+    container_name: poliklinik-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - app_public:/var/www/public:ro
+      - storage_data:/var/www/storage:ro
+    depends_on:
+      - app
+    networks:
+      - poliklinik-network
+
+  # 3. Database (MySQL 8.0)
+  db:
+    image: mysql:8.0
+    container_name: poliklinik-db
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${DB_DATABASE:-poliklinik_db}
+      MYSQL_USER: ${DB_USERNAME:-poliklinik_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-poliklinik_pass}
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-root_password}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - poliklinik-network
+
+  # 4. Laravel Reverb (WebSockets)
+  reverb:
+    image: poliklinik-app:latest
+    container_name: poliklinik-reverb
+    restart: unless-stopped
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - app
+      - db
+    networks:
+      - poliklinik-network
+
+  # 5. Laravel Queue Worker
+  queue:
+    image: poliklinik-app:latest
+    container_name: poliklinik-queue
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=90
+    env_file:
+      - .env
+    volumes:
+      - storage_data:/var/www/storage
+    depends_on:
+      - app
+      - db
+    networks:
+      - poliklinik-network
+
+  # 6. phpMyAdmin (Opsional - akses via http://IP-VPS:8081)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: poliklinik-pma
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    depends_on:
+      - db
+    networks:
+      - poliklinik-network
+
+networks:
+  poliklinik-network:
+    driver: bridge
+
+volumes:
+  app_public:
+  storage_data:
+  db_data:
