@@ -36,7 +36,19 @@
 
 @utility main-scroll {
     flex: 1 1 0%;
-    padding: 28px;
+    padding: 16px;
+}
+
+@media (min-width: 640px) {
+    .main-scroll {
+        padding: 24px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .main-scroll {
+        padding: 28px;
+    }
 }
 
 @utility sidebar-overlay {

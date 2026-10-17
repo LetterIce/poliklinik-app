@@ -117,8 +117,8 @@
                 <a href="#jadwal" class="hover:text-[#2d4499] transition">Jadwal Praktik</a>
             </nav>
 
-            {{-- Action Buttons --}}
-            <div class="flex items-center gap-3">
+            {{-- Action Buttons & Mobile Hamburger --}}
+            <div class="flex items-center gap-2 sm:gap-3">
                 @auth
                     @php
                         $role = auth()->user()->role;
@@ -128,105 +128,140 @@
                         elseif ($role === 'pasien') $dashboardRoute = route('pasien.dashboard');
                     @endphp
                     <a href="{{ $dashboardRoute }}"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white text-sm font-bold shadow-md shadow-indigo-900/10 transition-all hover:scale-102">
+                        class="inline-flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white text-xs sm:text-sm font-bold shadow-md shadow-indigo-900/10 transition-all hover:scale-102">
                         <i class="fas fa-user-check text-xs"></i>
-                        <span>Dashboard Pasien</span>
+                        <span>Dashboard</span>
                     </a>
                 @else
                     <a href="{{ route('login') }}"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-700 hover:text-[#2d4499] hover:bg-slate-100 text-sm font-bold transition">
+                        class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-700 hover:text-[#2d4499] hover:bg-slate-100 text-sm font-bold transition">
                         <i class="fas fa-right-to-bracket text-xs"></i>
                         <span>Masuk</span>
                     </a>
                     <a href="{{ route('register') }}"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white text-sm font-bold shadow-md shadow-indigo-900/10 transition-all hover:scale-102">
+                        class="inline-flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white text-xs sm:text-sm font-bold shadow-md shadow-indigo-900/10 transition-all hover:scale-102">
                         <i class="fas fa-calendar-plus text-xs"></i>
                         <span>Daftar Berobat</span>
                     </a>
                 @endauth
+
+                {{-- Mobile Menu Hamburger Button --}}
+                <button type="button" id="mobileMenuBtn" aria-label="Menu Navigasi" class="lg:hidden p-2 rounded-xl text-slate-700 hover:text-[#2d4499] hover:bg-slate-100 transition focus:outline-none">
+                    <i class="fas fa-bars text-xl" id="mobileMenuIcon"></i>
+                </button>
             </div>
 
+        </div>
+
+        {{-- Mobile Drawer Menu --}}
+        <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-200 bg-white/98 backdrop-blur-md px-4 pt-3 pb-6 shadow-xl space-y-1.5 transition-all">
+            <a href="#beranda" class="mobile-nav-link block px-3 py-2.5 rounded-xl font-semibold text-slate-700 hover:text-[#2d4499] hover:bg-slate-50 transition">
+                <i class="fas fa-house w-5 text-[#2d4499] mr-2 text-xs"></i> Beranda
+            </a>
+            <a href="#layanan" class="mobile-nav-link block px-3 py-2.5 rounded-xl font-semibold text-slate-700 hover:text-[#2d4499] hover:bg-slate-50 transition">
+                <i class="fas fa-stethoscope w-5 text-[#2d4499] mr-2 text-xs"></i> Layanan Spesialis
+            </a>
+            <a href="#fasilitas" class="mobile-nav-link block px-3 py-2.5 rounded-xl font-semibold text-slate-700 hover:text-[#2d4499] hover:bg-slate-50 transition">
+                <i class="fas fa-hospital w-5 text-[#2d4499] mr-2 text-xs"></i> Fasilitas
+            </a>
+            <a href="#alur" class="mobile-nav-link block px-3 py-2.5 rounded-xl font-semibold text-slate-700 hover:text-[#2d4499] hover:bg-slate-50 transition">
+                <i class="fas fa-shoe-prints w-5 text-[#2d4499] mr-2 text-xs"></i> Alur Pasien
+            </a>
+            <a href="#jadwal" class="mobile-nav-link block px-3 py-2.5 rounded-xl font-semibold text-slate-700 hover:text-[#2d4499] hover:bg-slate-50 transition">
+                <i class="fas fa-calendar-check w-5 text-[#2d4499] mr-2 text-xs"></i> Jadwal Praktik
+            </a>
+            <a href="#kontak" class="mobile-nav-link block px-3 py-2.5 rounded-xl font-semibold text-slate-700 hover:text-[#2d4499] hover:bg-slate-50 transition">
+                <i class="fas fa-headset w-5 text-[#2d4499] mr-2 text-xs"></i> Kontak & Lokasi
+            </a>
+
+            @guest
+            <div class="pt-3 border-t border-slate-100 flex flex-col gap-2">
+                <a href="{{ route('login') }}" class="w-full text-center py-2.5 rounded-xl border border-slate-200 font-bold text-sm text-slate-700 hover:bg-slate-50 transition">
+                    <i class="fas fa-right-to-bracket text-xs mr-1.5"></i> Masuk Akun
+                </a>
+            </div>
+            @endguest
         </div>
     </header>
 
     {{-- ================= HERO SECTION ================= --}}
-    <section id="beranda" class="hero-pattern min-h-[calc(100vh-5rem)] flex flex-col justify-center py-12 lg:py-16 overflow-hidden border-b border-slate-200 relative">
+    <section id="beranda" class="hero-pattern min-h-[calc(100vh-5rem)] flex flex-col justify-center py-8 sm:py-12 lg:py-16 overflow-hidden border-b border-slate-200 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 
                 {{-- Left Text --}}
-                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                <div class="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left">
 
                     {{-- Main Headline --}}
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.18]">
+                    <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.2]">
                         Merawat Anda Sepenuh Hati, <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#2d4499] via-indigo-600 to-blue-600">Seperti Keluarga Sendiri.</span>
                     </h1>
 
                     {{-- Subheadline Medis --}}
-                    <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
+                    <p class="text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
                         Kami memahami betapa berharganya waktu dan kesehatan Anda. Hadir untuk memberikan perawatan terbaik tanpa proses yang rumit.
                     </p>
 
                     {{-- CTA Buttons --}}
-                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-3.5 pt-1 sm:pt-2">
                         @auth
                             <a href="{{ route('pasien.daftar') }}"
-                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white font-bold text-base shadow-lg shadow-indigo-900/20 transition-all hover:scale-102">
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-2xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white font-bold text-sm sm:text-base shadow-lg shadow-indigo-900/20 transition-all hover:scale-102">
                                 <i class="fas fa-calendar-check"></i>
                                 <span>Pendaftaran Pemeriksaan</span>
                             </a>
                         @else
                             <a href="{{ route('register') }}"
-                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white font-bold text-base shadow-lg shadow-indigo-900/20 transition-all hover:scale-102">
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-2xl bg-[#2d4499] hover:bg-[#1e2d6b] text-white font-bold text-sm sm:text-base shadow-lg shadow-indigo-900/20 transition-all hover:scale-102">
                                 <i class="fas fa-user-plus"></i>
                                 <span>Daftar Pasien Baru</span>
                             </a>
                         @endauth
                         <a href="#jadwal"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-base border border-slate-200 shadow-sm transition">
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 sm:px-6 py-3 sm:py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-sm sm:text-base border border-slate-200 shadow-sm transition">
                             <i class="fas fa-user-doctor text-[#2d4499]"></i>
                             <span>Jadwal Dokter Spesialis</span>
                         </a>
                     </div>
 
                     {{-- Data Kepercayaan Pasien --}}
-                    <div class="pt-6 border-t border-slate-200/60 grid grid-cols-3 gap-6 text-center lg:text-left">
-                        <div>
-                            <span class="block text-2xl font-black text-slate-900">{{ $poliCount ?? 4 }}+</span>
-                            <span class="text-xs text-slate-500 font-medium">Poliklinik Spesialis</span>
+                    <div class="pt-5 sm:pt-6 border-t border-slate-200/60 grid grid-cols-3 gap-2 sm:gap-6 text-center lg:text-left">
+                        <div class="px-1">
+                            <span class="block text-xl sm:text-2xl font-black text-slate-900">{{ $poliCount ?? 4 }}+</span>
+                            <span class="text-[10px] sm:text-xs text-slate-500 font-medium">Poliklinik Spesialis</span>
                         </div>
-                        <div>
-                            <span class="block text-2xl font-black text-slate-900">{{ $dokterCount ?? 5 }}+</span>
-                            <span class="text-xs text-slate-500 font-medium">Dokter Spesialis Ahli</span>
+                        <div class="px-1 border-x border-slate-200/60 lg:border-none">
+                            <span class="block text-xl sm:text-2xl font-black text-slate-900">{{ $dokterCount ?? 5 }}+</span>
+                            <span class="text-[10px] sm:text-xs text-slate-500 font-medium">Dokter Spesialis Ahli</span>
                         </div>
-                        <div>
-                            <span class="block text-2xl font-black text-[#2d4499]">4.9 / 5.0</span>
-                            <span class="text-xs text-slate-500 font-medium">Kepuasan Pasien</span>
+                        <div class="px-1">
+                            <span class="block text-xl sm:text-2xl font-black text-[#2d4499]">4.9 / 5.0</span>
+                            <span class="text-[10px] sm:text-xs text-slate-500 font-medium">Kepuasan Pasien</span>
                         </div>
                     </div>
 
                 </div>
 
                 {{-- Right Visual: Animasi Kartun Bergerak & Floating Badges --}}
-                <div class="lg:col-span-5 relative py-6">
-                    <div class="relative mx-auto max-w-[440px] flex items-center justify-center min-h-[460px]">
+                <div class="lg:col-span-5 relative py-2 sm:py-6">
+                    <div class="relative mx-auto max-w-[340px] sm:max-w-[440px] flex items-center justify-center min-h-[340px] sm:min-h-[460px]">
                         
                         {{-- Ambient Animated Glows --}}
                         <div class="absolute w-80 h-80 bg-gradient-to-tr from-blue-300/40 via-indigo-300/30 to-purple-300/40 rounded-full blur-3xl anim-pulse-glow -z-10 pointer-events-none"></div>
                         <div class="absolute -bottom-6 -right-6 w-56 h-56 bg-emerald-200/40 rounded-full blur-2xl anim-float-slow -z-10 pointer-events-none" style="animation-duration: 7s;"></div>
 
                         {{-- Floating Micro Elements (Sparkles, Heart, Pill) --}}
-                        <div class="absolute top-2 left-6 text-xl anim-twinkle select-none pointer-events-none z-20">✨</div>
-                        <div class="absolute top-1/4 -right-2 text-2xl anim-heartbeat select-none pointer-events-none z-20">❤️</div>
-                        <div class="absolute bottom-16 -left-3 text-2xl anim-float-fast select-none pointer-events-none z-20">💊</div>
-                        <div class="absolute bottom-6 right-8 text-xl anim-twinkle select-none pointer-events-none z-20" style="animation-delay: -1.2s;">✨</div>
+                        <div class="absolute top-2 left-4 sm:left-6 text-lg sm:text-xl anim-twinkle select-none pointer-events-none z-20">✨</div>
+                        <div class="absolute top-1/4 right-1 sm:-right-2 text-xl sm:text-2xl anim-heartbeat select-none pointer-events-none z-20">❤️</div>
+                        <div class="absolute bottom-16 left-1 sm:-left-3 text-xl sm:text-2xl anim-float-fast select-none pointer-events-none z-20">💊</div>
+                        <div class="absolute bottom-6 right-6 sm:right-8 text-lg sm:text-xl anim-twinkle select-none pointer-events-none z-20" style="animation-delay: -1.2s;">✨</div>
 
                         {{-- Floating Speech Bubble --}}
-                        <div class="absolute -top-7 right-4 sm:right-10 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2 anim-float-fast z-30">
-                            <span class="text-sm">👋</span>
-                            <span class="text-xs font-bold text-slate-700">Yuk, jaga kesehatanmu!</span>
+                        <div class="absolute -top-4 sm:-top-7 right-2 sm:right-10 bg-white/95 backdrop-blur-md px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-1.5 sm:gap-2 anim-float-fast z-30">
+                            <span class="text-xs sm:text-sm">👋</span>
+                            <span class="text-[11px] sm:text-xs font-bold text-slate-700">Yuk, jaga kesehatanmu!</span>
                             {{-- Pointer tail pointing down-left toward doctor --}}
-                            <div class="absolute -bottom-1.5 left-6 w-3 h-3 bg-white rotate-45 border-r border-b border-slate-100"></div>
+                            <div class="absolute -bottom-1.5 left-5 sm:left-6 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-white rotate-45 border-r border-b border-slate-100"></div>
                         </div>
 
                         {{-- Main Cartoon Character (Animated) --}}
@@ -624,6 +659,42 @@
             } else {
                 // Fallback jika browser tidak mendukung observer
                 revealElements.forEach((el) => el.classList.add('is-revealed'));
+            }
+
+            // Mobile Menu Toggle & Smooth Auto-Close
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuIcon = document.getElementById('mobileMenuIcon');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', function () {
+                    const isClosed = mobileMenu.classList.contains('hidden');
+                    if (isClosed) {
+                        mobileMenu.classList.remove('hidden');
+                        if (mobileMenuIcon) {
+                            mobileMenuIcon.classList.remove('fa-bars');
+                            mobileMenuIcon.classList.add('fa-xmark');
+                        }
+                    } else {
+                        mobileMenu.classList.add('hidden');
+                        if (mobileMenuIcon) {
+                            mobileMenuIcon.classList.remove('fa-xmark');
+                            mobileMenuIcon.classList.add('fa-bars');
+                        }
+                    }
+                });
+
+                // Auto-close menu when a link is clicked
+                mobileNavLinks.forEach(link => {
+                    link.addEventListener('click', function () {
+                        mobileMenu.classList.add('hidden');
+                        if (mobileMenuIcon) {
+                            mobileMenuIcon.classList.remove('fa-xmark');
+                            mobileMenuIcon.classList.add('fa-bars');
+                        }
+                    });
+                });
             }
         });
     </script>

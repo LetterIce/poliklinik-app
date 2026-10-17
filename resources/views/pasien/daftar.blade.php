@@ -39,7 +39,7 @@
                     Sesuai ketentuan, pasien tidak dapat mendaftar ke dua poli sekaligus. Anda hanya dapat mendaftar kembali setelah pemeriksaan saat ini selesai dilayani oleh dokter.
                 </p>
 
-                <div class="mt-4 p-4 bg-white/80 rounded-xl border border-amber-200/60 grid grid-cols-2 gap-3 text-xs">
+                <div class="mt-4 p-4 bg-white/80 rounded-xl border border-amber-200/60 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
                         <span class="text-slate-400 block font-medium">Poli Tujuan:</span>
                         <span class="font-bold text-slate-800 text-sm">{{ optional($antrianAktif->jadwalPeriksa->dokter->poli)->nama_poli ?? '-' }}</span>

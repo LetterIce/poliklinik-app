@@ -1,23 +1,23 @@
-<header class="bg-base-100 border-b border-base-300 h-16 flex items-center px-6 gap-4 sticky top-0 z-30 shadow-sm">
+<header class="bg-base-100 border-b border-base-300 h-16 flex items-center px-3 sm:px-6 gap-2 sm:gap-4 sticky top-0 z-30 shadow-sm">
 
     {{-- Mobile Hamburger --}}
-    <button onclick="toggleSidebar()" class="btn btn-square btn-ghost lg:hidden">
-        <i data-lucide="menu" class="w-5 h-5"></i>
+    <button onclick="toggleSidebar()" aria-label="Toggle Sidebar" class="btn btn-square btn-ghost lg:hidden text-slate-700 hover:bg-slate-100">
+        <i class="fas fa-bars text-lg"></i>
     </button>
 
     {{-- Breadcrumb --}}
-    <div class="flex-1">
-        <div class="flex items-center gap-2 text-sm">
-            <span class="text-base-content/50">Poliklinik</span>
-            <i data-lucide="chevron-right" class="w-4 h-4 text-base-content/30"></i>
-            <span class="font-semibold text-base-content">
+    <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm truncate">
+            <span class="text-base-content/50 hidden xs:inline">Poliklinik</span>
+            <i class="fas fa-chevron-right text-[10px] text-base-content/30 hidden xs:inline"></i>
+            <span class="font-semibold text-base-content truncate">
                 {{ $title ?? 'Dashboard' }}
             </span>
         </div>
     </div>
 
-    {{-- Fullscreen --}}
-    <button onclick="toggleFullscreen()" class="btn btn-square btn-ghost text-slate-600 hover:bg-slate-100">
+    {{-- Fullscreen (Hidden on small mobile) --}}
+    <button onclick="toggleFullscreen()" aria-label="Toggle Fullscreen" class="hidden sm:inline-flex btn btn-square btn-ghost text-slate-600 hover:bg-slate-100">
         <i id="fsIcon" class="fas fa-expand w-4 h-4"></i>
     </button>
 
@@ -29,16 +29,16 @@
 
     {{-- Notification Dropdown --}}
     <div class="dropdown dropdown-end relative">
-        <button tabindex="0" role="button" aria-label="Notifikasi" class="relative p-2.5 rounded-xl hover:bg-slate-100 text-slate-600 transition flex items-center justify-center cursor-pointer">
-            <i class="fas fa-bell text-lg"></i>
+        <button tabindex="0" role="button" aria-label="Notifikasi" class="relative p-2 sm:p-2.5 rounded-xl hover:bg-slate-100 text-slate-600 transition flex items-center justify-center cursor-pointer">
+            <i class="fas fa-bell text-base sm:text-lg"></i>
             @if($unreadNotifCount > 0)
-            <span class="absolute top-1.5 right-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
+            <span class="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
                 {{ $unreadNotifCount > 9 ? '9+' : $unreadNotifCount }}
             </span>
             @endif
         </button>
 
-        <div tabindex="0" class="dropdown-content z-[100] menu p-0 shadow-2xl bg-base-100 rounded-2xl border border-slate-200 w-80 sm:w-96 mt-2 overflow-hidden">
+        <div tabindex="0" class="dropdown-content z-[100] menu p-0 shadow-2xl bg-base-100 rounded-2xl border border-slate-200 w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 mt-2 overflow-hidden right-0">
             {{-- Header Dropdown --}}
             <div class="px-4 py-3 bg-slate-50/90 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-2">

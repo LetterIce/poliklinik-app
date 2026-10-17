@@ -1,9 +1,9 @@
 <aside id="appSidebar" class="sidebar-fixed flex flex-col text-slate-300">
 
     {{-- ================= BRAND ================= --}}
-    <div class="px-5 py-5 border-b border-white/10">
+    <div class="px-5 py-5 border-b border-white/10 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <img src="{{ asset('images/gambar.jpg') }}" class="w-10 h-10 rounded-xl object-cover">
+            <img src="{{ asset('images/gambar.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-sm">
 
             <div>
                 <div class="font-bold text-white text-lg leading-tight">
@@ -32,6 +32,11 @@
                 @endif
             </div>
         </div>
+
+        {{-- Mobile Close Button --}}
+        <button type="button" onclick="toggleSidebar()" aria-label="Tutup Menu" class="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition">
+            <i class="fas fa-xmark text-lg"></i>
+        </button>
     </div>
 
 
