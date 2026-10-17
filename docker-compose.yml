@@ -39,11 +39,10 @@ services:
     image: mysql:8.0
     container_name: poliklinik-db
     restart: unless-stopped
+    command: --innodb-buffer-pool-size=64M --max-connections=60
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
       MYSQL_DATABASE: ${DB_DATABASE:-poliklinik_db}
-      MYSQL_USER: ${DB_USERNAME:-poliklinik_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-poliklinik_pass}
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
