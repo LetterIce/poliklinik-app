@@ -39,21 +39,19 @@ services:
     image: mysql:8.0
     container_name: poliklinik-db
     restart: unless-stopped
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
       MYSQL_DATABASE: ${DB_DATABASE:-poliklinik_db}
       MYSQL_USER: ${DB_USERNAME:-poliklinik_user}
       MYSQL_PASSWORD: ${DB_PASSWORD:-poliklinik_pass}
-    ports:
-      - "127.0.0.1:3306:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-root_password}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 30s
     networks:
       - poliklinik-network
 
