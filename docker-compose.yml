@@ -10,6 +10,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ./.env:/var/www/.env
       - app_public:/var/www/public
       - storage_data:/var/www/storage
     depends_on:
@@ -64,6 +65,8 @@ services:
       - .env
     ports:
       - "8080:8080"
+    volumes:
+      - ./.env:/var/www/.env
     depends_on:
       - app
       - db
@@ -79,6 +82,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ./.env:/var/www/.env
       - storage_data:/var/www/storage
     depends_on:
       - app
