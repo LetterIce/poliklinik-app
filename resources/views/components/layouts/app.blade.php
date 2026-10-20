@@ -60,6 +60,10 @@
             }
         }
     </script>
+    @if(auth()->check() && auth()->user()->role === 'pasien')
+        <x-partials.antrian-pasien-listener />
+    @endif
+
     @stack('scripts')
 </body>
 </html>

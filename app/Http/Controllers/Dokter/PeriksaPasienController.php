@@ -34,10 +34,20 @@ class PeriksaPasienController extends Controller
     {
         $daftarPoli = DaftarPoli::with(['pasien', 'jadwalPeriksa.dokter.poli'])->findOrFail($id);
 
+        // Kirim notifikasi database ke akun pasien
+        try {
+            $daftarPoli->pasien->notify(new \App\Notifications\AntrianDipanggilNotification($daftarPoli));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi panggil pasien: ' . $e->getMessage());
+        }
+
+        // Siarkan secara real-time via WebSocket Reverb
         AntrianUpdated::dispatchSafe(
             $daftarPoli->id_jadwal,
             $daftarPoli->no_antrian,
-            "Nomor antrean {$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) sedang dipanggil."
+            "Nomor antrean {$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) sedang dipanggil.",
+            $daftarPoli->id_pasien,
+            $daftarPoli->pasien->nama
         );
 
         return redirect()->back()->with('success', "Nomor antrean #{$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) berhasil dipanggil ke ruang periksa!");
@@ -49,7 +59,13 @@ class PeriksaPasienController extends Controller
         $obats = Obat::all();
 
         // Broadcast bahwa nomor antrean ini sedang dipanggil/dilayani
-        AntrianUpdated::dispatchSafe($daftarPoli->id_jadwal, $daftarPoli->no_antrian);
+        AntrianUpdated::dispatchSafe(
+            $daftarPoli->id_jadwal,
+            $daftarPoli->no_antrian,
+            "Nomor antrean {$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) sedang dilayani.",
+            $daftarPoli->id_pasien,
+            $daftarPoli->pasien->nama
+        );
 
         return view('dokter.periksa-pasien.create', compact('obats', 'id', 'daftarPoli'));
     }

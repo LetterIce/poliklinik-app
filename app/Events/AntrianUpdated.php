@@ -20,6 +20,8 @@ class AntrianUpdated implements ShouldBroadcastNow
     public $namaDokter;
     public $jadwals;
     public $message;
+    public $idPasien;
+    public $namaPasien;
 
     /**
      * Broadcast event secara aman tanpa membuat aplikasi error jika Reverb belum jalan
@@ -36,11 +38,13 @@ class AntrianUpdated implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      */
-    public function __construct($idJadwal = null, $nomorSedangDilayani = null, $message = null)
+    public function __construct($idJadwal = null, $nomorSedangDilayani = null, $message = null, $idPasien = null, $namaPasien = null)
     {
         $this->idJadwal = $idJadwal;
         $this->nomorSedangDilayani = $nomorSedangDilayani;
         $this->message = $message;
+        $this->idPasien = $idPasien;
+        $this->namaPasien = $namaPasien;
 
         if ($idJadwal) {
             $jadwal = JadwalPeriksa::with('dokter.poli')->find($idJadwal);
@@ -101,6 +105,8 @@ class AntrianUpdated implements ShouldBroadcastNow
             'nama_dokter' => $this->namaDokter,
             'jadwals' => $this->jadwals,
             'message' => $this->message,
+            'id_pasien' => $this->idPasien,
+            'nama_pasien' => $this->namaPasien,
             'timestamp' => now()->toIso8601String(),
         ];
     }
