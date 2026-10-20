@@ -60,15 +60,18 @@
             }
         }
 
-        // Pre-warm Speech Synthesis voices di awal
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.getVoices();
-            if (speechSynthesis.onvoiceschanged !== undefined) {
-                speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        // Pre-warm Speech Synthesis voices di awal agar siap bicara seketika
+        function prewarmVoices() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+                }
             }
         }
+        prewarmVoices();
 
-        // Buka izin AudioContext secara otomatis begitu user berinteraksi
+        // Buka izin AudioContext & Speech secara otomatis begitu user berinteraksi
         function unlockBrowserAudio() {
             if (isAudioUnlocked) return;
             try {
@@ -85,6 +88,10 @@
                         isAudioUnlocked = true;
                     }
                 }
+
+                if ('speechSynthesis' in window && window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                }
             } catch (e) {
                 // Silently ignore
             }
@@ -94,7 +101,7 @@
             window.addEventListener(evt, unlockBrowserAudio, { once: true, passive: true });
         });
 
-        // 1. Audio Bel Rumah Sakit (Ding-Dong) via Web Audio API - Irama Tenang & Alami
+        // 1. Audio Bel Rumah Sakit (Ding-Dong) via Web Audio API - Suara Bersamaan
         function playHospitalChime() {
             try {
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -111,7 +118,7 @@
                 const ctx = sharedAudioCtx;
                 const now = ctx.currentTime;
 
-                const playTone = (freq, startTime, duration, volume = 0.45) => {
+                const playTone = (freq, startTime, duration, volume = 0.4) => {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
 
@@ -119,7 +126,7 @@
                     osc.frequency.setValueAtTime(freq, startTime);
 
                     gain.gain.setValueAtTime(0.0001, startTime);
-                    gain.gain.linearRampToValueAtTime(volume, startTime + 0.04);
+                    gain.gain.linearRampToValueAtTime(volume, startTime + 0.03);
                     gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
 
                     osc.connect(gain);
@@ -129,43 +136,71 @@
                     osc.stop(startTime + duration);
                 };
 
-                // Ding-Dong Tenang: Nada 1 (G5 / 784 Hz, 0.75s) -> Nada 2 (C5 / 523 Hz, 1.25s)
-                playTone(783.99, now, 0.75, 0.45);
-                playTone(523.25, now + 0.45, 1.25, 0.5);
+                // Ding-Dong: Nada 1 (G5 / 784 Hz, 0.45s) -> Nada 2 (C5 / 523 Hz, 0.75s)
+                playTone(783.99, now, 0.45, 0.4);
+                playTone(523.25, now + 0.22, 0.75, 0.45);
             } catch (err) {
                 // Silently ignore
             }
         }
 
-        // 2. Pengumuman Suara Panggilan Bahasa Indonesia
+        // 2. Pengumuman Suara Panggilan Bahasa Indonesia - LANGSUNG BICARA BERSAMAAN DENGAN POP-UP
         function announceCallWithSpeech(nomor, nama, poli, dokter) {
             if (!('speechSynthesis' in window)) return;
 
             try {
-                window.speechSynthesis.cancel();
+                if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+                    window.speechSynthesis.cancel();
+                }
 
                 const callText = `Panggilan nomor antrean ${nomor}. Atas nama ${nama}. Silakan segera masuk ke ruang ${poli}, dokter ${dokter}.`;
                 const utterance = new SpeechSynthesisUtterance(callText);
-                utterance.lang = 'id-ID';
-                utterance.rate = 0.92;
-                utterance.pitch = 1.05;
 
-                const voices = window.speechSynthesis.getVoices();
-                const idVoice = voices.find(v => v.lang && (v.lang.includes('id') || v.lang.includes('ID')));
-                if (idVoice) {
-                    utterance.voice = idVoice;
+                // Cari voice bahasa Indonesia terbaik
+                const voices = window.speechSynthesis.getVoices() || [];
+                let chosenVoice = null;
+
+                if (voices.length > 0) {
+                    // 1. Cari voice bahasa Indonesia (id-ID)
+                    chosenVoice = voices.find(v => v.lang && (v.lang === 'id-ID' || v.lang === 'id_ID' || v.lang.toLowerCase().startsWith('id')));
+
+                    // 2. Cari voice dengan nama Indonesia
+                    if (!chosenVoice) {
+                        chosenVoice = voices.find(v => v.name && (v.name.toLowerCase().includes('indonesia') || v.name.toLowerCase().includes('indonesian') || v.name.includes('Gadis') || v.name.includes('Ardi')));
+                    }
+
+                    // 3. Fallback voice default sistem
+                    if (!chosenVoice) {
+                        chosenVoice = voices.find(v => v.default) || voices[0] || null;
+                    }
                 }
 
-                // Jeda 700ms agar denting bel berbunyi penuh sebelum suara berbicara
-                setTimeout(() => {
-                    window.speechSynthesis.speak(utterance);
-                }, 700);
+                if (chosenVoice) {
+                    utterance.voice = chosenVoice;
+                    utterance.lang = chosenVoice.lang || 'id-ID';
+                } else {
+                    utterance.lang = 'id-ID';
+                }
+
+                utterance.volume = 1.0;
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+
+                // Cegah Chromium garbage collection bug dengan referensi global
+                window._activeSpeechUtterance = utterance;
+
+                // Bicara langsung bersamaan tanpa delay
+                window.speechSynthesis.speak(utterance);
+
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                }
             } catch (err) {
                 // Silently ignore
             }
         }
 
-        // 3. Modal Pop-up Interaktif SweetAlert2
+        // 3. Modal Pop-up Interaktif SweetAlert2 - MUNCUL BERSAMAAN DENGAN SUARA TANPA DELAY
         function triggerPatientCalledAlert(data) {
             // Cegah duplikasi jika modal saat ini sudah terbuka di layar
             if (typeof Swal !== 'undefined' && Swal.isVisible()) {
@@ -176,25 +211,15 @@
             if (now - lastHandledTimestamp < 4000) return;
             lastHandledTimestamp = now;
 
-            // Bunyikan bel & pengumuman suara
-            playHospitalChime();
-            announceCallWithSpeech(data.nomor, data.nama, data.poli, data.dokter);
-
-            // Perbarui badge lonceng notifikasi di header
-            updateHeaderNotificationBadge();
-
-            // Tampilkan Modal Panggilan
+            // 1. Tampilkan Modal Pop-up SEGERA
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
-                    title: '<div class="text-xl sm:text-2xl font-black text-[#2d4499] flex items-center justify-center gap-2 tracking-tight"><i class="fas fa-bullhorn text-amber-500 animate-bounce"></i> Giliran Anda Telah Dipanggil!</div>',
+                    title: '<div class="text-xl sm:text-2xl font-black text-[#2d4499] flex items-center justify-center gap-2 tracking-tight">Giliran Anda Telah Dipanggil!</div>',
                     html: `
                         <div class="py-2 text-center">
                             <div class="inline-flex flex-col items-center justify-center px-8 py-4 rounded-2xl bg-blue-50 border-2 border-blue-200 shadow-inner mb-4">
                                 <span class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Nomor Antrean Anda</span>
                                 <span class="text-4xl sm:text-5xl font-black text-[#2d4499] my-1">#${data.nomor}</span>
-                                <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full mt-1 flex items-center gap-1.5 shadow-xs">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block"></span>
-                                    <span>Sedang Dipanggil ke Ruangan</span>
                                 </span>
                             </div>
 
@@ -214,7 +239,7 @@
                             </div>
 
                             <p class="text-xs text-slate-600 mt-4 leading-relaxed font-medium">
-                                Dokter pemeriksa sedang menanti Anda di dalam ruang periksa. Silakan segera menuju ke ruangan sekarang juga.
+                                Silakan segera menuju ke ruangan.
                             </p>
                         </div>
                     `,
@@ -229,6 +254,13 @@
                     }
                 });
             }
+
+            // 2. Bunyikan Bel dan Suara SEGERA bersamaan dengan modal pop-up (ZERO DELAY)
+            playHospitalChime();
+            announceCallWithSpeech(data.nomor, data.nama, data.poli, data.dokter);
+
+            // 3. Perbarui badge lonceng notifikasi di header
+            updateHeaderNotificationBadge();
         }
 
         // Bantuan untuk perbarui badge lonceng notifikasi
