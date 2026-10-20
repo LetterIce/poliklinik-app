@@ -19,19 +19,6 @@
     class="hidden">
 </div>
 
-{{-- Floating Widget Kecil: Status Audio Antrean & Tombol Tes Suara --}}
-<div id="audioAntreanWidget" class="fixed bottom-5 right-5 z-40 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-2xl shadow-lg border border-slate-200 text-xs transition-all hover:shadow-xl">
-    <div class="flex items-center gap-1.5 text-emerald-600 font-semibold">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span class="hidden sm:inline">Panggilan Real-Time Aktif</span>
-    </div>
-    <span class="text-slate-300">|</span>
-    <button type="button" id="btnTestSound" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#2d4499] font-bold transition cursor-pointer" title="Klik untuk menguji bunyi bel dan pengeras suara browser Anda">
-        <i class="fas fa-volume-high text-xs text-[#2d4499]"></i>
-        <span>Tes Suara</span>
-    </button>
-</div>
-
 <script>
     (function() {
         const configEl = document.getElementById('antrianPasienListenerConfig');
@@ -45,11 +32,19 @@
         let myDokterName = configEl.dataset.dokterName;
         const statusUrl = configEl.dataset.statusUrl;
 
-        let lastHandledCallKey = null;
+        let lastHandledTimestamp = 0;
         let sharedAudioCtx = null;
         let isAudioUnlocked = false;
 
-        // Buka kunci AudioContext secara otomatis begitu user berinteraksi pertama kali (Autoplay Policy Browser)
+        // Pre-warm Speech Synthesis voices di awal agar tidak delay saat panggilan pertama
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+            }
+        }
+
+        // Buka izin AudioContext secara otomatis begitu user berinteraksi (Autoplay Policy)
         function unlockBrowserAudio() {
             if (isAudioUnlocked) return;
             try {
@@ -61,23 +56,21 @@
                     if (sharedAudioCtx.state === 'suspended') {
                         sharedAudioCtx.resume().then(() => {
                             isAudioUnlocked = true;
-                            console.log('🔊 [Audio Antrean] Browser AudioContext berhasil dibuka kuncinya.');
                         });
                     } else {
                         isAudioUnlocked = true;
                     }
                 }
             } catch (e) {
-                console.warn('[Audio Antrean] Unlock audio failed:', e);
+                // Silently ignore
             }
         }
 
-        // Listener interaksi pertama pengguna pada layar
         ['click', 'touchstart', 'keydown'].forEach(evt => {
             window.addEventListener(evt, unlockBrowserAudio, { once: true, passive: true });
         });
 
-        // 1. Audio Ding-Dong Chime Menggunakan Web Audio API
+        // 1. Audio Bel Rumah Sakit (Ding-Dong) via Web Audio API
         function playHospitalChime() {
             try {
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -94,16 +87,15 @@
                 const ctx = sharedAudioCtx;
                 const now = ctx.currentTime;
 
-                const playTone = (freq, startTime, duration, volume = 0.5) => {
+                const playTone = (freq, startTime, duration, volume = 0.55) => {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
 
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(freq, startTime);
 
-                    // Envelope bel denting rumah sakit
                     gain.gain.setValueAtTime(0.0001, startTime);
-                    gain.gain.linearRampToValueAtTime(volume, startTime + 0.05);
+                    gain.gain.linearRampToValueAtTime(volume, startTime + 0.03);
                     gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
 
                     osc.connect(gain);
@@ -114,25 +106,24 @@
                 };
 
                 // Ding-Dong: Nada 1 (G5 / 784 Hz) -> Nada 2 (C5 / 523 Hz)
-                playTone(783.99, now, 0.75, 0.6);
-                playTone(523.25, now + 0.45, 1.25, 0.65);
-                console.log('🔔 [Audio Antrean] Bel Ding-Dong berbunyi.');
+                playTone(783.99, now, 0.45, 0.6);
+                playTone(523.25, now + 0.25, 0.75, 0.65);
             } catch (err) {
-                console.warn('Audio chime warning:', err);
+                // Silently ignore
             }
         }
 
-        // 2. Pengumuman Suara Panggilan Bahasa Indonesia (Web Speech API)
+        // 2. Pengumuman Suara Panggilan Bahasa Indonesia
         function announceCallWithSpeech(nomor, nama, poli, dokter) {
             if (!('speechSynthesis' in window)) return;
 
             try {
                 window.speechSynthesis.cancel();
 
-                const callText = `Panggilan nomor antrean ${nomor}. Atas nama ${nama}. Silakan segera masuk ke ruang ${poli}, dokter ${dokter}.`;
+                const callText = `Panggilan nomor antrean ${nomor}. Atas nama ${nama}. Silakan masuk ke ruang ${poli}, dokter ${dokter}.`;
                 const utterance = new SpeechSynthesisUtterance(callText);
                 utterance.lang = 'id-ID';
-                utterance.rate = 0.92;
+                utterance.rate = 0.95;
                 utterance.pitch = 1.05;
 
                 const voices = window.speechSynthesis.getVoices();
@@ -141,27 +132,27 @@
                     utterance.voice = idVoice;
                 }
 
-                // Berikan jeda 700ms agar denting bel selesai berbunyi terlebih dahulu
+                // Berikan jeda 350ms agar nada denting terdengar terlebih dahulu sebelum suara berbicara
                 setTimeout(() => {
                     window.speechSynthesis.speak(utterance);
-                    console.log('🗣️ [Voice Antrean] Suara pengumuman diucapkan:', callText);
-                }, 700);
+                }, 350);
             } catch (err) {
-                console.warn('Speech synthesis warning:', err);
+                // Silently ignore
             }
         }
 
         // 3. Modal Pop-up Interaktif SweetAlert2
         function triggerPatientCalledAlert(data) {
-            const callKey = `${data.nomor}-${data.jadwal_id || data.poli}-${new Date().getMinutes()}`;
-            if (lastHandledCallKey === callKey) return;
-            lastHandledCallKey = callKey;
+            const now = Date.now();
+            // Cooldown 4 detik untuk mencegah spam panggilan ganda dalam sepersekian detik
+            if (now - lastHandledTimestamp < 4000) return;
+            lastHandledTimestamp = now;
 
             // Bunyikan bel & suara
             playHospitalChime();
             announceCallWithSpeech(data.nomor, data.nama, data.poli, data.dokter);
 
-            // Perbarui badge notifikasi
+            // Perbarui badge lonceng notifikasi di header
             updateHeaderNotificationBadge();
 
             // Tampilkan Modal Panggilan
@@ -228,43 +219,7 @@
             }
         }
 
-        // 4. Tombol Tes Suara Manual
-        const btnTest = document.getElementById('btnTestSound');
-        if (btnTest) {
-            btnTest.addEventListener('click', function(e) {
-                e.preventDefault();
-                unlockBrowserAudio();
-                playHospitalChime();
-
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                    const testUtterance = new SpeechSynthesisUtterance('Uji coba suara antrean rumah sakit. Suara dan bel pengumuman berfungsi dengan sangat baik.');
-                    testUtterance.lang = 'id-ID';
-                    testUtterance.rate = 0.95;
-
-                    const voices = window.speechSynthesis.getVoices();
-                    const idVoice = voices.find(v => v.lang && (v.lang.includes('id') || v.lang.includes('ID')));
-                    if (idVoice) testUtterance.voice = idVoice;
-
-                    setTimeout(() => {
-                        window.speechSynthesis.speak(testUtterance);
-                    }, 700);
-                }
-
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Tes Suara Berhasil!',
-                        text: 'Bel denting dan pengeras suara browser Anda telah aktif dan siap menerima panggilan dokter.',
-                        timer: 2500,
-                        showConfirmButton: false,
-                        customClass: { popup: 'rounded-2xl' }
-                    });
-                }
-            });
-        }
-
-        // 5. Handler Pemeriksaan Kecocokan Antrean
+        // 4. Handler Pemeriksaan Kecocokan Antrean
         function checkAndHandleEvent(event) {
             document.dispatchEvent(new CustomEvent('antrian-updated-broadcast', { detail: event }));
 
@@ -278,7 +233,6 @@
                 eventNomor === String(myNoAntrian));
 
             if (isDirectMatch || isQueueMatch) {
-                console.log('🎉 [Antrian Listener] Panggilan untuk Anda terdeteksi!', event);
                 triggerPatientCalledAlert({
                     nomor: eventNomor || myNoAntrian,
                     nama: event.nama_pasien || myPatientName,
@@ -289,22 +243,21 @@
             }
         }
 
-        // 6. Inisialisasi Listener WebSocket Reverb
+        // 5. Inisialisasi Listener WebSocket Reverb
         function initEcho() {
             if (window.Echo) {
-                console.log('🎧 [Antrian Listener] Menghubungkan ke channel WebSocket: antrian-channel');
                 window.Echo.channel('antrian-channel')
                     .listen('.AntrianUpdated', (event) => {
                         checkAndHandleEvent(event);
                     });
             } else {
-                setTimeout(initEcho, 300);
+                setTimeout(initEcho, 250);
             }
         }
 
         initEcho();
 
-        // 7. Polling Fallback Berkala & Eksekusi Pertama Saat Halaman Dibuka
+        // 6. Polling Fallback Berkala
         async function syncQueueStatus(isFirstLoad = false) {
             if (!statusUrl) return;
             try {
@@ -320,10 +273,7 @@
                     myPoliName = q.poli;
                     myDokterName = q.dokter;
 
-                    // Jika nomor sedang dilayani sama dengan nomor pasien
                     if (String(q.sedang_dilayani) === String(q.nomor_anda)) {
-                        // Jangan langsung membunyikan suara menggelegar saat baru refresh jika belum pernah interaksi,
-                        // tapi tampilkan modal dan siapkan panggilan
                         if (!isFirstLoad || isAudioUnlocked) {
                             triggerPatientCalledAlert({
                                 nomor: q.nomor_anda,
@@ -336,14 +286,12 @@
                     }
                 }
             } catch (err) {
-                // Silently ignore network error
+                // Silently ignore
             }
         }
 
-        // Jalankan pengecekan pertama saat refresh halaman
         syncQueueStatus(true);
-
-        // Jalankan sinkronisasi berkala setiap 8 detik
-        setInterval(() => syncQueueStatus(false), 8000);
+        // Polling setiap 4 detik sebagai fallback jika WebSocket tertutup
+        setInterval(() => syncQueueStatus(false), 4000);
     })();
 </script>

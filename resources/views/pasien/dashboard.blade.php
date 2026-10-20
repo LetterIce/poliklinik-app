@@ -321,11 +321,8 @@
             // ========================================================
             function initEchoListener() {
                 if (window.Echo) {
-                    console.log('🔌 [Laravel Echo] Menghubungkan ke WebSocket channel: antrian-channel');
-
                     window.Echo.channel('antrian-channel')
                         .listen('.AntrianUpdated', (event) => {
-                            console.log('⚡ [Real-Time WebSocket] Event Antrian Diterima:', event);
 
                             // Update live tabel antrian untuk semua jadwal poli
                             if (event.jadwals) {
