@@ -56,15 +56,35 @@ class PoliController extends Controller
 
         $jumlahSudahDaftar = DaftarPoli::where('id_jadwal', $request->id_jadwal)->count();
 
-        DaftarPoli::create([
+        $daftarPoli = DaftarPoli::create([
             'id_pasien' => $request->id_pasien,
             'id_jadwal' => $request->id_jadwal,
             'keluhan' => $request->keluhan,
             'no_antrian' => $jumlahSudahDaftar + 1,
         ]);
 
-        // Broadcast real-time antrian via Reverb
-        AntrianUpdated::dispatchSafe($request->id_jadwal);
+        $daftarPoli->load(['pasien', 'jadwalPeriksa.dokter.poli']);
+
+        // Kirim notifikasi database ke akun dokter yang bertugas
+        if ($daftarPoli->jadwalPeriksa && $daftarPoli->jadwalPeriksa->dokter) {
+            try {
+                $daftarPoli->jadwalPeriksa->dokter->notify(new \App\Notifications\PasienBaruMendaftarNotification($daftarPoli));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Gagal kirim notifikasi pasien baru ke dokter: ' . $e->getMessage());
+            }
+        }
+
+        // Broadcast real-time antrian via Reverb ke dokter dan pasien
+        AntrianUpdated::dispatchSafe(
+            $request->id_jadwal,
+            null,
+            "Pasien baru mendaftar: {$daftarPoli->pasien->nama} (No. Antrean #{$daftarPoli->no_antrian})",
+            $daftarPoli->id_pasien,
+            $daftarPoli->pasien->nama,
+            $daftarPoli->no_antrian,
+            'daftar',
+            $daftarPoli->jadwalPeriksa?->id_dokter
+        );
 
         return redirect()
             ->route('pasien.dashboard')

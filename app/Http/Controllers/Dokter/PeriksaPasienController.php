@@ -47,7 +47,10 @@ class PeriksaPasienController extends Controller
             $daftarPoli->no_antrian,
             "Nomor antrean {$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) sedang dipanggil.",
             $daftarPoli->id_pasien,
-            $daftarPoli->pasien->nama
+            $daftarPoli->pasien->nama,
+            $daftarPoli->no_antrian,
+            'panggil',
+            $daftarPoli->jadwalPeriksa?->id_dokter
         );
 
         return redirect()->back()->with('success', "Nomor antrean #{$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) berhasil dipanggil ke ruang periksa!");
@@ -64,7 +67,10 @@ class PeriksaPasienController extends Controller
             $daftarPoli->no_antrian,
             "Nomor antrean {$daftarPoli->no_antrian} ({$daftarPoli->pasien->nama}) sedang dilayani.",
             $daftarPoli->id_pasien,
-            $daftarPoli->pasien->nama
+            $daftarPoli->pasien->nama,
+            $daftarPoli->no_antrian,
+            'layani',
+            $daftarPoli->jadwalPeriksa?->id_dokter
         );
 
         return view('dokter.periksa-pasien.create', compact('obats', 'id', 'daftarPoli'));
@@ -107,7 +113,7 @@ class PeriksaPasienController extends Controller
         });
 
         // Cari nomor antrean berikutnya yang belum diperiksa pada jadwal ini
-        $daftarPoli = DaftarPoli::find($request->id_daftar_poli);
+        $daftarPoli = DaftarPoli::with('jadwalPeriksa')->find($request->id_daftar_poli);
         if ($daftarPoli) {
             $nextNomor = DaftarPoli::where('id_jadwal', $daftarPoli->id_jadwal)
                 ->doesntHave('periksas')
@@ -115,7 +121,16 @@ class PeriksaPasienController extends Controller
                 ->value('no_antrian');
 
             // Broadcast real-time update ke dashboard pasien via Reverb
-            AntrianUpdated::dispatchSafe($daftarPoli->id_jadwal, $nextNomor ?? 'Selesai');
+            AntrianUpdated::dispatchSafe(
+                $daftarPoli->id_jadwal,
+                $nextNomor ?? 'Selesai',
+                null,
+                null,
+                null,
+                null,
+                'selesai',
+                $daftarPoli->jadwalPeriksa?->id_dokter
+            );
         }
 
         return redirect()

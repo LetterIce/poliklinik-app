@@ -63,6 +63,9 @@
     @if(auth()->check() && auth()->user()->role === 'pasien')
         <x-partials.antrian-pasien-listener />
     @endif
+    @if(auth()->check() && auth()->user()->role === 'dokter')
+        <x-partials.antrian-dokter-listener />
+    @endif
 
     @stack('scripts')
 </body>

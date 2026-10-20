@@ -39,11 +39,11 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         
         {{-- Card 1: Antrean Menunggu --}}
-        <div class="card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+        <div id="cardAntreanMenunggu" class="card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <div>
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Antrean Menunggu</span>
-                    <span class="text-3xl font-black text-slate-800 mt-1 block">{{ $antreanMenunggu->count() }}</span>
+                    <span id="statAntreanMenungguCount" class="text-3xl font-black text-slate-800 mt-1 block">{{ $antreanMenunggu->count() }}</span>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-sm">
                     <i class="fas fa-users-line"></i>
@@ -119,6 +119,7 @@
     </div>
 
     {{-- ================= BANNER PANGGILAN ANTREAN HARI INI ================= --}}
+    <div id="bannerAntreanDokter">
     @if($jadwalHariIni)
     <div class="relative overflow-hidden rounded-2xl shadow-lg mb-8 p-6 sm:p-8 text-white transition-all"
          style="background: linear-gradient(135deg, #1e293b 0%, #2d4499 100%);">
@@ -167,9 +168,10 @@
         </div>
     </div>
     @endif
+    </div>
 
     {{-- ================= TABEL ANTREAN PASIEN MENUNGGU ================= --}}
-    <div class="card bg-white shadow-sm rounded-2xl border border-slate-200 mb-8">
+    <div id="tabelAntreanMenungguCard" class="card bg-white shadow-sm rounded-2xl border border-slate-200 mb-8">
         <div class="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h3 class="font-bold text-lg text-slate-800">

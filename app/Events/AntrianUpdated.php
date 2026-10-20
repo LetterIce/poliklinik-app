@@ -22,6 +22,9 @@ class AntrianUpdated implements ShouldBroadcastNow
     public $message;
     public $idPasien;
     public $namaPasien;
+    public $idDokter;
+    public $noAntrian;
+    public $action;
 
     /**
      * Broadcast event secara aman tanpa membuat aplikasi error jika Reverb belum jalan
@@ -38,19 +41,33 @@ class AntrianUpdated implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      */
-    public function __construct($idJadwal = null, $nomorSedangDilayani = null, $message = null, $idPasien = null, $namaPasien = null)
-    {
+    public function __construct(
+        $idJadwal = null,
+        $nomorSedangDilayani = null,
+        $message = null,
+        $idPasien = null,
+        $namaPasien = null,
+        $noAntrian = null,
+        $action = null,
+        $idDokter = null
+    ) {
         $this->idJadwal = $idJadwal;
         $this->nomorSedangDilayani = $nomorSedangDilayani;
         $this->message = $message;
         $this->idPasien = $idPasien;
         $this->namaPasien = $namaPasien;
+        $this->noAntrian = $noAntrian;
+        $this->action = $action ?? ($nomorSedangDilayani ? 'panggil' : 'update');
+        $this->idDokter = $idDokter;
 
         if ($idJadwal) {
             $jadwal = JadwalPeriksa::with('dokter.poli')->find($idJadwal);
             if ($jadwal) {
                 $this->namaDokter = optional($jadwal->dokter)->nama ?? 'Dokter';
                 $this->namaPoli = optional($jadwal->dokter->poli)->nama_poli ?? 'Poliklinik';
+                if (!$this->idDokter) {
+                    $this->idDokter = $jadwal->id_dokter;
+                }
             }
         }
 
@@ -100,6 +117,8 @@ class AntrianUpdated implements ShouldBroadcastNow
     {
         return [
             'id_jadwal' => $this->idJadwal,
+            'id_dokter' => $this->idDokter,
+            'no_antrian' => $this->noAntrian,
             'nomor_sedang_dilayani' => $this->nomorSedangDilayani,
             'nama_poli' => $this->namaPoli,
             'nama_dokter' => $this->namaDokter,
@@ -107,6 +126,7 @@ class AntrianUpdated implements ShouldBroadcastNow
             'message' => $this->message,
             'id_pasien' => $this->idPasien,
             'nama_pasien' => $this->namaPasien,
+            'action' => $this->action,
             'timestamp' => now()->toIso8601String(),
         ];
     }

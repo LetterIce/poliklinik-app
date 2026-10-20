@@ -27,7 +27,7 @@
     @endif
 
     {{-- Card Table --}}
-    <div class="card bg-base-100 shadow-md rounded-2xl border border-slate-200">
+    <div id="tabelPeriksaPasienCard" class="card bg-base-100 shadow-md rounded-2xl border border-slate-200">
         <div class="card-body p-0">
 
             <div class="overflow-x-auto">

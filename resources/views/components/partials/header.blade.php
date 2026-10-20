@@ -28,7 +28,7 @@
     @endphp
 
     {{-- Notification Dropdown --}}
-    <div class="dropdown dropdown-end relative">
+    <div id="headerNotificationDropdown" class="dropdown dropdown-end relative">
         <button tabindex="0" role="button" aria-label="Notifikasi" class="relative p-2 sm:p-2.5 rounded-xl hover:bg-slate-100 text-slate-600 transition flex items-center justify-center cursor-pointer">
             <i class="fas fa-bell text-base sm:text-lg"></i>
             @if($unreadNotifCount > 0)
