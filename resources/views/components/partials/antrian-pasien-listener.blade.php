@@ -36,7 +36,7 @@
         let sharedAudioCtx = null;
         let isAudioUnlocked = false;
 
-        // Pre-warm Speech Synthesis voices di awal agar tidak delay saat panggilan pertama
+        // Pre-warm Speech Synthesis voices saat awal halaman dibuka
         if ('speechSynthesis' in window) {
             window.speechSynthesis.getVoices();
             if (speechSynthesis.onvoiceschanged !== undefined) {
@@ -44,7 +44,7 @@
             }
         }
 
-        // Buka izin AudioContext secara otomatis begitu user berinteraksi (Autoplay Policy)
+        // Buka izin AudioContext secara otomatis begitu user berinteraksi
         function unlockBrowserAudio() {
             if (isAudioUnlocked) return;
             try {
@@ -70,7 +70,7 @@
             window.addEventListener(evt, unlockBrowserAudio, { once: true, passive: true });
         });
 
-        // 1. Audio Bel Rumah Sakit (Ding-Dong) via Web Audio API
+        // 1. Audio Bel Rumah Sakit (Ding-Dong) via Web Audio API - Irama Tenang & Alami
         function playHospitalChime() {
             try {
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -87,7 +87,7 @@
                 const ctx = sharedAudioCtx;
                 const now = ctx.currentTime;
 
-                const playTone = (freq, startTime, duration, volume = 0.55) => {
+                const playTone = (freq, startTime, duration, volume = 0.4) => {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
 
@@ -95,7 +95,7 @@
                     osc.frequency.setValueAtTime(freq, startTime);
 
                     gain.gain.setValueAtTime(0.0001, startTime);
-                    gain.gain.linearRampToValueAtTime(volume, startTime + 0.03);
+                    gain.gain.linearRampToValueAtTime(volume, startTime + 0.04);
                     gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
 
                     osc.connect(gain);
@@ -105,9 +105,9 @@
                     osc.stop(startTime + duration);
                 };
 
-                // Ding-Dong: Nada 1 (G5 / 784 Hz) -> Nada 2 (C5 / 523 Hz)
-                playTone(783.99, now, 0.45, 0.6);
-                playTone(523.25, now + 0.25, 0.75, 0.65);
+                // Ding-Dong: Nada 1 (G5 / 784 Hz, 0.75s) -> Nada 2 (C5 / 523 Hz, 1.25s)
+                playTone(783.99, now, 0.75, 0.4);
+                playTone(523.25, now + 0.45, 1.25, 0.45);
             } catch (err) {
                 // Silently ignore
             }
@@ -120,10 +120,10 @@
             try {
                 window.speechSynthesis.cancel();
 
-                const callText = `Panggilan nomor antrean ${nomor}. Atas nama ${nama}. Silakan masuk ke ruang ${poli}, dokter ${dokter}.`;
+                const callText = `Panggilan nomor antrean ${nomor}. Atas nama ${nama}. Silakan segera masuk ke ruang ${poli}, dokter ${dokter}.`;
                 const utterance = new SpeechSynthesisUtterance(callText);
                 utterance.lang = 'id-ID';
-                utterance.rate = 0.95;
+                utterance.rate = 0.92;
                 utterance.pitch = 1.05;
 
                 const voices = window.speechSynthesis.getVoices();
@@ -132,10 +132,10 @@
                     utterance.voice = idVoice;
                 }
 
-                // Berikan jeda 350ms agar nada denting terdengar terlebih dahulu sebelum suara berbicara
+                // Berikan jeda 700ms agar denting bel berbunyi penuh terlebih dahulu
                 setTimeout(() => {
                     window.speechSynthesis.speak(utterance);
-                }, 350);
+                }, 700);
             } catch (err) {
                 // Silently ignore
             }
@@ -143,16 +143,20 @@
 
         // 3. Modal Pop-up Interaktif SweetAlert2
         function triggerPatientCalledAlert(data) {
+            // Cegah duplikasi atau spam jika modal saat ini sudah terbuka di layar
+            if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+                return;
+            }
+
             const now = Date.now();
-            // Cooldown 4 detik untuk mencegah spam panggilan ganda dalam sepersekian detik
-            if (now - lastHandledTimestamp < 4000) return;
+            if (now - lastHandledTimestamp < 5000) return;
             lastHandledTimestamp = now;
 
-            // Bunyikan bel & suara
+            // Bunyikan bel & suara pengumuman
             playHospitalChime();
             announceCallWithSpeech(data.nomor, data.nama, data.poli, data.dokter);
 
-            // Perbarui badge lonceng notifikasi di header
+            // Perbarui badge notifikasi di header
             updateHeaderNotificationBadge();
 
             // Tampilkan Modal Panggilan
@@ -219,7 +223,7 @@
             }
         }
 
-        // 4. Handler Pemeriksaan Kecocokan Antrean
+        // 4. Handler Pemeriksaan Kecocokan Antrean - HANYA DIPICU EVENT DOKTER KLIK PANGGIL
         function checkAndHandleEvent(event) {
             document.dispatchEvent(new CustomEvent('antrian-updated-broadcast', { detail: event }));
 
@@ -232,6 +236,7 @@
                 eventJadwalId === String(myJadwalId) &&
                 eventNomor === String(myNoAntrian));
 
+            // Bunyikan panggilan HANYA jika cocok dengan nomor antrean pasien ini
             if (isDirectMatch || isQueueMatch) {
                 triggerPatientCalledAlert({
                     nomor: eventNomor || myNoAntrian,
@@ -257,8 +262,8 @@
 
         initEcho();
 
-        // 6. Polling Fallback Berkala
-        async function syncQueueStatus(isFirstLoad = false) {
+        // 6. Polling Data Antrean Aktif (Hanya sinkronisasi data jadwal/antrean tanpa memicu suara)
+        async function syncQueueData() {
             if (!statusUrl) return;
             try {
                 const res = await fetch(statusUrl, {
@@ -272,26 +277,13 @@
                     myNoAntrian = String(q.nomor_anda);
                     myPoliName = q.poli;
                     myDokterName = q.dokter;
-
-                    if (String(q.sedang_dilayani) === String(q.nomor_anda)) {
-                        if (!isFirstLoad || isAudioUnlocked) {
-                            triggerPatientCalledAlert({
-                                nomor: q.nomor_anda,
-                                nama: myPatientName,
-                                poli: q.poli,
-                                dokter: q.dokter,
-                                jadwal_id: myJadwalId
-                            });
-                        }
-                    }
                 }
             } catch (err) {
                 // Silently ignore
             }
         }
 
-        syncQueueStatus(true);
-        // Polling setiap 4 detik sebagai fallback jika WebSocket tertutup
-        setInterval(() => syncQueueStatus(false), 4000);
+        // Jalankan sinkronisasi data setiap 10 detik secara pasif di latar belakang
+        setInterval(syncQueueData, 10000);
     })();
 </script>
