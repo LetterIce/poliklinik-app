@@ -19,6 +19,19 @@
     class="hidden">
 </div>
 
+{{-- Floating Widget Kecil: Status Audio Antrean & Tombol Tes Suara --}}
+<div id="audioAntreanWidget" class="fixed bottom-5 right-5 z-40 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-2xl shadow-lg border border-slate-200 text-xs transition-all hover:shadow-xl">
+    <div class="flex items-center gap-1.5 text-emerald-600 font-semibold">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="hidden sm:inline">Panggilan Real-Time Aktif</span>
+    </div>
+    <span class="text-slate-300">|</span>
+    <button type="button" id="btnTestSound" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#2d4499] font-bold transition cursor-pointer" title="Klik untuk menguji bunyi bel dan pengeras suara browser Anda">
+        <i class="fas fa-volume-high text-xs text-[#2d4499]"></i>
+        <span>Tes Suara</span>
+    </button>
+</div>
+
 <script>
     (function() {
         const configEl = document.getElementById('antrianPasienListenerConfig');
@@ -33,27 +46,64 @@
         const statusUrl = configEl.dataset.statusUrl;
 
         let lastHandledCallKey = null;
+        let sharedAudioCtx = null;
+        let isAudioUnlocked = false;
 
-        // 1. Audio Ding-Dong Chime Menggunakan Web Audio API (Bebas dari file eksternal)
+        // Buka kunci AudioContext secara otomatis begitu user berinteraksi pertama kali (Autoplay Policy Browser)
+        function unlockBrowserAudio() {
+            if (isAudioUnlocked) return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) {
+                    if (!sharedAudioCtx) {
+                        sharedAudioCtx = new AudioCtx();
+                    }
+                    if (sharedAudioCtx.state === 'suspended') {
+                        sharedAudioCtx.resume().then(() => {
+                            isAudioUnlocked = true;
+                            console.log('🔊 [Audio Antrean] Browser AudioContext berhasil dibuka kuncinya.');
+                        });
+                    } else {
+                        isAudioUnlocked = true;
+                    }
+                }
+            } catch (e) {
+                console.warn('[Audio Antrean] Unlock audio failed:', e);
+            }
+        }
+
+        // Listener interaksi pertama pengguna pada layar
+        ['click', 'touchstart', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, unlockBrowserAudio, { once: true, passive: true });
+        });
+
+        // 1. Audio Ding-Dong Chime Menggunakan Web Audio API
         function playHospitalChime() {
             try {
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
                 if (!AudioCtx) return;
-                const ctx = new AudioCtx();
-                if (ctx.state === 'suspended') {
-                    ctx.resume();
+
+                if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+                    sharedAudioCtx = new AudioCtx();
                 }
 
-                const playTone = (freq, startTime, duration, volume = 0.3) => {
+                if (sharedAudioCtx.state === 'suspended') {
+                    sharedAudioCtx.resume();
+                }
+
+                const ctx = sharedAudioCtx;
+                const now = ctx.currentTime;
+
+                const playTone = (freq, startTime, duration, volume = 0.5) => {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
 
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(freq, startTime);
 
-                    // Fade in & exponential decay seperti bel rumah sakit / bandara
+                    // Envelope bel denting rumah sakit
                     gain.gain.setValueAtTime(0.0001, startTime);
-                    gain.gain.linearRampToValueAtTime(volume, startTime + 0.04);
+                    gain.gain.linearRampToValueAtTime(volume, startTime + 0.05);
                     gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
 
                     osc.connect(gain);
@@ -63,10 +113,10 @@
                     osc.stop(startTime + duration);
                 };
 
-                const now = ctx.currentTime;
-                // Nada 1: G5 (784 Hz), Nada 2: C5 (523 Hz) - Karakter nada rumah sakit
-                playTone(783.99, now, 0.75, 0.4);
-                playTone(523.25, now + 0.45, 1.2, 0.45);
+                // Ding-Dong: Nada 1 (G5 / 784 Hz) -> Nada 2 (C5 / 523 Hz)
+                playTone(783.99, now, 0.75, 0.6);
+                playTone(523.25, now + 0.45, 1.25, 0.65);
+                console.log('🔔 [Audio Antrean] Bel Ding-Dong berbunyi.');
             } catch (err) {
                 console.warn('Audio chime warning:', err);
             }
@@ -85,17 +135,17 @@
                 utterance.rate = 0.92;
                 utterance.pitch = 1.05;
 
-                // Cari voice Bahasa Indonesia jika terpasang di browser
                 const voices = window.speechSynthesis.getVoices();
                 const idVoice = voices.find(v => v.lang && (v.lang.includes('id') || v.lang.includes('ID')));
                 if (idVoice) {
                     utterance.voice = idVoice;
                 }
 
-                // Berikan jeda sebentar agar denting bel berbunyi terlebih dahulu
+                // Berikan jeda 700ms agar denting bel selesai berbunyi terlebih dahulu
                 setTimeout(() => {
                     window.speechSynthesis.speak(utterance);
-                }, 650);
+                    console.log('🗣️ [Voice Antrean] Suara pengumuman diucapkan:', callText);
+                }, 700);
             } catch (err) {
                 console.warn('Speech synthesis warning:', err);
             }
@@ -111,7 +161,7 @@
             playHospitalChime();
             announceCallWithSpeech(data.nomor, data.nama, data.poli, data.dokter);
 
-            // Perbarui visual badge notifikasi di header jika belum update
+            // Perbarui badge notifikasi
             updateHeaderNotificationBadge();
 
             // Tampilkan Modal Panggilan
@@ -162,7 +212,7 @@
             }
         }
 
-        // Bantuan untuk perbarui badge notifikasi bell jika ada panggilan baru
+        // Bantuan untuk perbarui badge lonceng notifikasi
         function updateHeaderNotificationBadge() {
             const bellBtn = document.querySelector('button[aria-label="Notifikasi"]');
             if (!bellBtn) return;
@@ -178,19 +228,51 @@
             }
         }
 
-        // 4. Handler Pemeriksaan Kecocokan Antrean
+        // 4. Tombol Tes Suara Manual
+        const btnTest = document.getElementById('btnTestSound');
+        if (btnTest) {
+            btnTest.addEventListener('click', function(e) {
+                e.preventDefault();
+                unlockBrowserAudio();
+                playHospitalChime();
+
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const testUtterance = new SpeechSynthesisUtterance('Uji coba suara antrean rumah sakit. Suara dan bel pengumuman berfungsi dengan sangat baik.');
+                    testUtterance.lang = 'id-ID';
+                    testUtterance.rate = 0.95;
+
+                    const voices = window.speechSynthesis.getVoices();
+                    const idVoice = voices.find(v => v.lang && (v.lang.includes('id') || v.lang.includes('ID')));
+                    if (idVoice) testUtterance.voice = idVoice;
+
+                    setTimeout(() => {
+                        window.speechSynthesis.speak(testUtterance);
+                    }, 700);
+                }
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tes Suara Berhasil!',
+                        text: 'Bel denting dan pengeras suara browser Anda telah aktif dan siap menerima panggilan dokter.',
+                        timer: 2500,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-2xl' }
+                    });
+                }
+            });
+        }
+
+        // 5. Handler Pemeriksaan Kecocokan Antrean
         function checkAndHandleEvent(event) {
-            // Forward event untuk halaman lain (seperti tabel live di dashboard)
             document.dispatchEvent(new CustomEvent('antrian-updated-broadcast', { detail: event }));
 
             const eventPatientId = event.id_pasien ? String(event.id_pasien) : null;
             const eventNomor = event.nomor_sedang_dilayani ? String(event.nomor_sedang_dilayani) : null;
             const eventJadwalId = event.id_jadwal ? String(event.id_jadwal) : null;
 
-            // Kriteria 1: Cocok langsung berdasarkan ID Pasien
             const isDirectMatch = (eventPatientId && eventPatientId === String(myPatientId));
-
-            // Kriteria 2: Cocok berdasarkan Jadwal & Nomor Antrean Pasien
             const isQueueMatch = (myNoAntrian && myJadwalId &&
                 eventJadwalId === String(myJadwalId) &&
                 eventNomor === String(myNoAntrian));
@@ -207,10 +289,10 @@
             }
         }
 
-        // 5. Inisialisasi Listener WebSocket Reverb (Laravel Echo)
+        // 6. Inisialisasi Listener WebSocket Reverb
         function initEcho() {
             if (window.Echo) {
-                console.log('🎧 [Antrian Listener] Memasang listener real-time di channel "antrian-channel"');
+                console.log('🎧 [Antrian Listener] Menghubungkan ke channel WebSocket: antrian-channel');
                 window.Echo.channel('antrian-channel')
                     .listen('.AntrianUpdated', (event) => {
                         checkAndHandleEvent(event);
@@ -222,8 +304,8 @@
 
         initEcho();
 
-        // 6. Polling Berkala Sebagai Fallback
-        async function syncQueueStatus() {
+        // 7. Polling Fallback Berkala & Eksekusi Pertama Saat Halaman Dibuka
+        async function syncQueueStatus(isFirstLoad = false) {
             if (!statusUrl) return;
             try {
                 const res = await fetch(statusUrl, {
@@ -240,13 +322,17 @@
 
                     // Jika nomor sedang dilayani sama dengan nomor pasien
                     if (String(q.sedang_dilayani) === String(q.nomor_anda)) {
-                        triggerPatientCalledAlert({
-                            nomor: q.nomor_anda,
-                            nama: myPatientName,
-                            poli: q.poli,
-                            dokter: q.dokter,
-                            jadwal_id: myJadwalId
-                        });
+                        // Jangan langsung membunyikan suara menggelegar saat baru refresh jika belum pernah interaksi,
+                        // tapi tampilkan modal dan siapkan panggilan
+                        if (!isFirstLoad || isAudioUnlocked) {
+                            triggerPatientCalledAlert({
+                                nomor: q.nomor_anda,
+                                nama: myPatientName,
+                                poli: q.poli,
+                                dokter: q.dokter,
+                                jadwal_id: myJadwalId
+                            });
+                        }
                     }
                 }
             } catch (err) {
@@ -254,7 +340,10 @@
             }
         }
 
-        // Jalankan sinkronisasi fallback setiap 10 detik
-        setInterval(syncQueueStatus, 10000);
+        // Jalankan pengecekan pertama saat refresh halaman
+        syncQueueStatus(true);
+
+        // Jalankan sinkronisasi berkala setiap 8 detik
+        setInterval(() => syncQueueStatus(false), 8000);
     })();
 </script>
