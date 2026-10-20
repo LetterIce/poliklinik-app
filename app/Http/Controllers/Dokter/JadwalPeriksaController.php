@@ -59,7 +59,7 @@ class JadwalPeriksaController extends Controller
 
         return redirect()
             ->route('jadwal-periksa.index')
-            ->with('message', 'Jadwal periksa berhasil ditambahkan')
+            ->with('message', 'Jadwal berhasil ditambahkan')
             ->with('type', 'success');
     }
 
@@ -105,7 +105,7 @@ class JadwalPeriksaController extends Controller
 
         return redirect()
             ->route('jadwal-periksa.index')
-            ->with('message', 'Jadwal periksa berhasil diperbarui')
+            ->with('message', 'Jadwal berhasil diperbarui')
             ->with('type', 'success');
     }
 
@@ -119,7 +119,7 @@ class JadwalPeriksaController extends Controller
 
         return redirect()
             ->route('jadwal-periksa.index')
-            ->with('message', 'Jadwal periksa berhasil dihapus')
+            ->with('message', 'Jadwal berhasil dihapus')
             ->with('type', 'success');
     }
 }

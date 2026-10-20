@@ -9,7 +9,7 @@
                 </h2>
             </div>
             <p class="text-sm text-slate-500 mt-1">
-                Selamat bertugas, <span class="font-semibold text-slate-700">dr. {{ $dokter->nama }}</span>! Kelola antrean pasien dan pemeriksaan medis hari ini.
+                Selamat bertugas, <span class="font-semibold text-slate-700">dr. {{ $dokter->nama }}</span>!
             </p>
         </div>
 
@@ -111,15 +111,11 @@
             </div>
             <div class="mt-3 text-xs">
                 @if($jadwalHariIni)
-                    <span class="text-emerald-600 font-semibold flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Praktik Hari Ini
-                    </span>
                 @else
-                    <span class="text-slate-400 font-medium">Jadwal libur hari ini</span>
+                    <span class="text-slate-400 font-medium">Hari ini anda libur</span>
                 @endif
             </div>
         </div>
-
     </div>
 
     {{-- ================= BANNER PANGGILAN ANTREAN HARI INI ================= --}}
@@ -179,7 +175,6 @@
                 <h3 class="font-bold text-lg text-slate-800">
                     Daftar Antrean Pasien Menunggu
                 </h3>
-                <p class="text-xs text-slate-500 mt-0.5">Pasien yang telah mendaftar dan siap diperiksa di ruang tindakan.</p>
             </div>
             <a href="{{ route('periksa-pasien.index') }}" class="text-xs font-bold text-[#2d4499] hover:underline">
                 Buka Menu Periksa Pasien &rarr;
@@ -193,7 +188,7 @@
                         <th class="px-6 py-4 text-center w-20">Antrean</th>
                         <th class="px-6 py-4">Pasien</th>
                         <th class="px-6 py-4">Keluhan</th>
-                        <th class="px-6 py-4">Jadwal Periksa</th>
+                        <th class="px-6 py-4">Jadwal Praktik</th>
                         <th class="px-6 py-4 text-center">Status</th>
                         <th class="px-6 py-4 text-right">Aksi Tindakan</th>
                     </tr>
@@ -266,8 +261,7 @@
         <div class="lg:col-span-5 card bg-white shadow-sm rounded-2xl border border-slate-200 p-5">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div>
-                    <h3 class="font-bold text-base text-slate-800">Jadwal Praktik Dokter</h3>
-                    <p class="text-xs text-slate-500">Jadwal konsultasi rawat jalan Anda.</p>
+                    <h3 class="font-bold text-base text-slate-800">Jadwal Praktik Anda</h3>
                 </div>
                 <a href="{{ route('jadwal-periksa.index') }}" class="text-xs font-bold text-[#2d4499] hover:underline">
                     Kelola
@@ -309,7 +303,6 @@
             <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div>
                     <h3 class="font-bold text-base text-slate-800">Riwayat Pemeriksaan Terakhir</h3>
-                    <p class="text-xs text-slate-500">5 pasien terakhir yang telah selesai ditangani.</p>
                 </div>
                 <a href="{{ route('riwayat-pasien.index') }}" class="text-xs font-bold text-[#2d4499] hover:underline">
                     Semua Riwayat

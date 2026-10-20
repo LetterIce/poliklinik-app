@@ -1,10 +1,10 @@
-<x-layouts.app title="Daftar Pasien Periksa">
+<x-layouts.app title="Daftar Pasien">
 
     {{-- Header --}}
     <div class="flex items-center justify-between mb-6">
         <div>
             <h2 class="text-2xl font-bold text-slate-800">
-                Daftar Pasien Periksa
+                Daftar Pasien
             </h2>
             <p class="text-sm text-slate-500 mt-1">Antrean pasien yang mendaftar pada jadwal praktik Anda.</p>
         </div>

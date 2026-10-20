@@ -1,4 +1,4 @@
-<x-layouts.app title="Tambah Jadwal Periksa">
+<x-layouts.app title="Tambah Jadwal Praktik">
 
     {{-- Header --}}
     <div class="flex items-center gap-3 mb-6">
@@ -8,7 +8,7 @@
         </a>
         <div>
             <h2 class="text-xl font-bold text-slate-800">
-                Tambah Jadwal Periksa
+                Tambah Jadwal Praktik
             </h2>
             <p class="text-xs text-slate-500">Tentukan hari dan jam operasional praktik Anda.</p>
         </div>

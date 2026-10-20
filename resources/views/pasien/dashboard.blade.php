@@ -100,9 +100,6 @@
                             <span id="active-sedang-dilayani" class="text-4xl sm:text-5xl font-black text-[#2d4499] block mt-1 tracking-tight transition-all duration-300">
                                 {{ $sedangDilayaniAktif }}
                             </span>
-                            <div class="flex items-center justify-center gap-1.5 mt-2 text-[10px] font-bold text-slate-400">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
-                                <span>Live Update</span>
                             </div>
                         </div>
 
@@ -148,10 +145,6 @@
                         Daftar jadwal dokter spesialis dan nomor antrean yang sedang dilayani saat ini.
                     </p>
                 </div>
-                
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-[#2d4499] text-xs font-semibold border border-blue-100">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
-                    <span>Status Antrean Real-Time</span>
                 </div>
             </div>
 
