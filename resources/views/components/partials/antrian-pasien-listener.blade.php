@@ -36,7 +36,31 @@
         let sharedAudioCtx = null;
         let isAudioUnlocked = false;
 
-        // Pre-warm Speech Synthesis voices saat awal halaman dibuka
+        // Manajemen riwayat ID panggilan agar HANYA berbunyi 1 kali per klik dokter & TIDAK SPAM
+        function getHandledCallIds() {
+            try {
+                const stored = sessionStorage.getItem('poliklinik_handled_calls');
+                return stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function markCallIdAsHandled(id) {
+            if (!id) return;
+            try {
+                const list = getHandledCallIds();
+                if (!list.includes(String(id))) {
+                    list.push(String(id));
+                    if (list.length > 50) list.shift();
+                    sessionStorage.setItem('poliklinik_handled_calls', JSON.stringify(list));
+                }
+            } catch (e) {
+                // Silently ignore
+            }
+        }
+
+        // Pre-warm Speech Synthesis voices di awal
         if ('speechSynthesis' in window) {
             window.speechSynthesis.getVoices();
             if (speechSynthesis.onvoiceschanged !== undefined) {
@@ -87,7 +111,7 @@
                 const ctx = sharedAudioCtx;
                 const now = ctx.currentTime;
 
-                const playTone = (freq, startTime, duration, volume = 0.4) => {
+                const playTone = (freq, startTime, duration, volume = 0.45) => {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
 
@@ -105,9 +129,9 @@
                     osc.stop(startTime + duration);
                 };
 
-                // Ding-Dong: Nada 1 (G5 / 784 Hz, 0.75s) -> Nada 2 (C5 / 523 Hz, 1.25s)
-                playTone(783.99, now, 0.75, 0.4);
-                playTone(523.25, now + 0.45, 1.25, 0.45);
+                // Ding-Dong Tenang: Nada 1 (G5 / 784 Hz, 0.75s) -> Nada 2 (C5 / 523 Hz, 1.25s)
+                playTone(783.99, now, 0.75, 0.45);
+                playTone(523.25, now + 0.45, 1.25, 0.5);
             } catch (err) {
                 // Silently ignore
             }
@@ -132,7 +156,7 @@
                     utterance.voice = idVoice;
                 }
 
-                // Berikan jeda 700ms agar denting bel berbunyi penuh terlebih dahulu
+                // Jeda 700ms agar denting bel berbunyi penuh sebelum suara berbicara
                 setTimeout(() => {
                     window.speechSynthesis.speak(utterance);
                 }, 700);
@@ -143,20 +167,20 @@
 
         // 3. Modal Pop-up Interaktif SweetAlert2
         function triggerPatientCalledAlert(data) {
-            // Cegah duplikasi atau spam jika modal saat ini sudah terbuka di layar
+            // Cegah duplikasi jika modal saat ini sudah terbuka di layar
             if (typeof Swal !== 'undefined' && Swal.isVisible()) {
                 return;
             }
 
             const now = Date.now();
-            if (now - lastHandledTimestamp < 5000) return;
+            if (now - lastHandledTimestamp < 4000) return;
             lastHandledTimestamp = now;
 
-            // Bunyikan bel & suara pengumuman
+            // Bunyikan bel & pengumuman suara
             playHospitalChime();
             announceCallWithSpeech(data.nomor, data.nama, data.poli, data.dokter);
 
-            // Perbarui badge notifikasi di header
+            // Perbarui badge lonceng notifikasi di header
             updateHeaderNotificationBadge();
 
             // Tampilkan Modal Panggilan
@@ -223,7 +247,7 @@
             }
         }
 
-        // 4. Handler Pemeriksaan Kecocokan Antrean - HANYA DIPICU EVENT DOKTER KLIK PANGGIL
+        // 4. Handler Pemeriksaan Kecocokan Antrean via WebSocket Event
         function checkAndHandleEvent(event) {
             document.dispatchEvent(new CustomEvent('antrian-updated-broadcast', { detail: event }));
 
@@ -236,15 +260,16 @@
                 eventJadwalId === String(myJadwalId) &&
                 eventNomor === String(myNoAntrian));
 
-            // Bunyikan panggilan HANYA jika cocok dengan nomor antrean pasien ini
             if (isDirectMatch || isQueueMatch) {
-                triggerPatientCalledAlert({
+                const callPayload = {
                     nomor: eventNomor || myNoAntrian,
                     nama: event.nama_pasien || myPatientName,
                     poli: event.nama_poli || myPoliName,
                     dokter: event.nama_dokter || myDokterName,
                     jadwal_id: eventJadwalId || myJadwalId
-                });
+                };
+
+                triggerPatientCalledAlert(callPayload);
             }
         }
 
@@ -262,7 +287,7 @@
 
         initEcho();
 
-        // 6. Polling Data Antrean Aktif (Hanya sinkronisasi data jadwal/antrean tanpa memicu suara)
+        // 6. Polling Sinkronisasi Data & Fallback Panggilan Terverifikasi (Bebas Spam)
         async function syncQueueData() {
             if (!statusUrl) return;
             try {
@@ -272,18 +297,39 @@
                 if (!res.ok) return;
                 const data = await res.json();
 
+                // Perbarui variabel lokal antrean pasien
                 if (data.has_active_queue && data.active_queue) {
                     const q = data.active_queue;
                     myNoAntrian = String(q.nomor_anda);
                     myPoliName = q.poli;
                     myDokterName = q.dokter;
                 }
+
+                // Cek apakah ada notifikasi panggilan baru dari dokter
+                if (data.latest_call && data.latest_call.id) {
+                    const callId = String(data.latest_call.id);
+                    const handledCalls = getHandledCallIds();
+
+                    // Jika ID panggilan ini belum pernah diputar di sesi ini:
+                    if (!handledCalls.includes(callId)) {
+                        markCallIdAsHandled(callId);
+
+                        triggerPatientCalledAlert({
+                            nomor: data.latest_call.nomor || myNoAntrian,
+                            nama: data.latest_call.nama || myPatientName,
+                            poli: data.latest_call.poli || myPoliName,
+                            dokter: data.latest_call.dokter || myDokterName,
+                            jadwal_id: myJadwalId
+                        });
+                    }
+                }
             } catch (err) {
                 // Silently ignore
             }
         }
 
-        // Jalankan sinkronisasi data setiap 10 detik secara pasif di latar belakang
-        setInterval(syncQueueData, 10000);
+        // Panggil sinkronisasi pertama kali & ulangi setiap 3.5 detik sebagai pengaman
+        syncQueueData();
+        setInterval(syncQueueData, 3500);
     })();
 </script>

@@ -106,10 +106,31 @@ class DashboardController extends Controller
             ];
         });
 
+        // Cek notifikasi panggilan dokter terbaru (30 menit terakhir)
+        $latestPanggilan = $user->notifications()
+            ->where('data->tipe', 'antrian_dipanggil')
+            ->latest()
+            ->first();
+
+        $latestCallData = null;
+        if ($latestPanggilan && $latestPanggilan->created_at->gt(now()->subMinutes(30))) {
+            $latestCallData = [
+                'id' => $latestPanggilan->id,
+                'created_at' => $latestPanggilan->created_at->toIso8601String(),
+                'title' => $latestPanggilan->data['title'] ?? 'Panggilan Antrean',
+                'message' => $latestPanggilan->data['message'] ?? '',
+                'nomor' => $activeQueueData['nomor_anda'] ?? null,
+                'poli' => $activeQueueData['poli'] ?? 'Poliklinik',
+                'dokter' => $activeQueueData['dokter'] ?? 'Dokter',
+                'nama' => $user->nama,
+            ];
+        }
+
         return response()->json([
             'status' => 'success',
             'has_active_queue' => !is_null($activeQueueData),
             'active_queue' => $activeQueueData,
+            'latest_call' => $latestCallData,
             'jadwals' => $jadwalStatus,
         ]);
     }

@@ -9,6 +9,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - REVERB_HOST=reverb
+      - REVERB_SERVER_HOST=reverb
     volumes:
       - ./.env:/var/www/.env
       - app_public:/var/www/public
