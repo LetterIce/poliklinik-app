@@ -31,8 +31,16 @@
                         class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm focus:border-primary focus:outline-none bg-white">
                         <option value="">-- Pilih Obat --</option>
                         @foreach($obats as $obat)
-                        <option value="{{ $obat->id }}" data-nama="{{ $obat->nama_obat }}" data-harga="{{ $obat->harga }}" data-kemasan="{{ $obat->kemasan }}">
-                            {{ $obat->nama_obat }} {{ $obat->kemasan ? '('.$obat->kemasan.')' : '' }} - Rp {{ number_format($obat->harga, 0, ',', '.') }}
+                        @php
+                            $isOutOfStock = ($obat->stok ?? 0) <= 0;
+                        @endphp
+                        <option value="{{ $obat->id }}" 
+                            data-nama="{{ $obat->nama_obat }}" 
+                            data-harga="{{ $obat->harga }}" 
+                            data-kemasan="{{ $obat->kemasan }}"
+                            data-stok="{{ $obat->stok ?? 0 }}"
+                            {{ $isOutOfStock ? 'disabled' : '' }}>
+                            {{ $obat->nama_obat }} {{ $obat->kemasan ? '('.$obat->kemasan.')' : '' }} - Rp {{ number_format($obat->harga, 0, ',', '.') }} {{ $isOutOfStock ? '[STOK HABIS]' : '(Sisa Stok: ' . ($obat->stok ?? 0) . ')' }}
                         </option>
                         @endforeach
                     </select>

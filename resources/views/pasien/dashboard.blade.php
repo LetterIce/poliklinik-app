@@ -100,7 +100,6 @@
                             <span id="active-sedang-dilayani" class="text-4xl sm:text-5xl font-black text-[#2d4499] block mt-1 tracking-tight transition-all duration-300">
                                 {{ $sedangDilayaniAktif }}
                             </span>
-                            </div>
                         </div>
 
                     </div>
@@ -144,7 +143,6 @@
                     <p class="text-xs text-slate-500 mt-0.5">
                         Daftar jadwal dokter spesialis dan nomor antrean yang sedang dilayani saat ini.
                     </p>
-                </div>
                 </div>
             </div>
 

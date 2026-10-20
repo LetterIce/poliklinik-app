@@ -41,7 +41,12 @@ class ObatController extends Controller
             'nama_obat' => 'required|string|max:255',
             'kemasan' => 'nullable|string|max:35',
             'harga' => 'required|numeric|min:0',
+            'stok' => 'nullable|integer|min:0',
         ]);
+
+        if (!isset($validated['stok']) || $validated['stok'] === null) {
+            $validated['stok'] = 100;
+        }
 
         Obat::create($validated);
 
@@ -79,7 +84,12 @@ class ObatController extends Controller
             'nama_obat' => 'required|string|max:255',
             'kemasan' => 'nullable|string|max:35',
             'harga' => 'required|numeric|min:0',
+            'stok' => 'nullable|integer|min:0',
         ]);
+
+        if (!isset($validated['stok']) || $validated['stok'] === null) {
+            $validated['stok'] = $obat->stok ?? 100;
+        }
 
         $obat->update($validated);
 

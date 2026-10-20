@@ -80,21 +80,31 @@ class PeriksaPasienController extends Controller
 
         $obatIds = json_decode($request->obat_json, true);
 
-        $periksa = Periksa::create([
-            'id_daftar_poli' => $request->id_daftar_poli,
-            'tgl_periksa' => now(),
-            'catatan' => $request->catatan,
-            'biaya_periksa' => $request->biaya_periksa + 150000,
-        ]);
+        $periksa = \Illuminate\Support\Facades\DB::transaction(function () use ($request, $obatIds) {
+            $periksa = Periksa::create([
+                'id_daftar_poli' => $request->id_daftar_poli,
+                'tgl_periksa' => now(),
+                'catatan' => $request->catatan,
+                'biaya_periksa' => $request->biaya_periksa + 150000,
+            ]);
 
-        if (is_array($obatIds)) {
-            foreach ($obatIds as $idObat) {
-                DetailPeriksa::create([
-                    'id_periksa' => $periksa->id,
-                    'id_obat' => $idObat,
-                ]);
+            if (is_array($obatIds)) {
+                foreach ($obatIds as $idObat) {
+                    DetailPeriksa::create([
+                        'id_periksa' => $periksa->id,
+                        'id_obat' => $idObat,
+                    ]);
+
+                    // Kurangi stok obat otomatis
+                    $obat = Obat::find($idObat);
+                    if ($obat && $obat->stok > 0) {
+                        $obat->decrement('stok', 1);
+                    }
+                }
             }
-        }
+
+            return $periksa;
+        });
 
         // Cari nomor antrean berikutnya yang belum diperiksa pada jadwal ini
         $daftarPoli = DaftarPoli::find($request->id_daftar_poli);
