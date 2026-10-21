@@ -29,10 +29,15 @@ class PeriksaPasienController extends Controller
 
     /**
      * Panggil antrean pasien secara real-time via WebSocket Reverb
+     * Keamanan: Dokter hanya dapat memanggil antrean yang terjadwal untuk dirinya
      */
     public function panggilAntrian($id)
     {
-        $daftarPoli = DaftarPoli::with(['pasien', 'jadwalPeriksa.dokter.poli'])->findOrFail($id);
+        $daftarPoli = DaftarPoli::with(['pasien', 'jadwalPeriksa.dokter.poli'])
+            ->whereHas('jadwalPeriksa', function ($q) {
+                $q->where('id_dokter', Auth::id());
+            })
+            ->findOrFail($id);
 
         // Kirim notifikasi database ke akun pasien
         try {
@@ -58,7 +63,17 @@ class PeriksaPasienController extends Controller
 
     public function create($id)
     {
-        $daftarPoli = DaftarPoli::with(['pasien', 'jadwalPeriksa.dokter.poli'])->findOrFail($id);
+        $daftarPoli = DaftarPoli::with(['pasien', 'jadwalPeriksa.dokter.poli'])
+            ->whereHas('jadwalPeriksa', function ($q) {
+                $q->where('id_dokter', Auth::id());
+            })
+            ->findOrFail($id);
+
+        if ($daftarPoli->periksas()->exists()) {
+            return redirect()->route('periksa-pasien.index')
+                ->with('error', 'Pasien ini sudah selesai diperiksa sebelumnya.');
+        }
+
         $obats = Obat::all();
 
         // Broadcast bahwa nomor antrean ini sedang dipanggil/dilayani
@@ -79,33 +94,61 @@ class PeriksaPasienController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'obat_json' => 'required',
-            'catatan' => 'nullable|string',
-            'biaya_periksa' => 'required|integer',
+            'id_daftar_poli' => 'required|exists:daftar_poli,id',
+            'obat_json' => 'nullable',
+            'catatan' => 'nullable|string|max:2000',
         ]);
 
-        $obatIds = json_decode($request->obat_json, true);
+        // Verifikasi kepemilikan: Hanya dokter yang ditugaskan yang dapat memeriksa
+        $daftarPoli = DaftarPoli::with('jadwalPeriksa')
+            ->whereHas('jadwalPeriksa', function ($q) {
+                $q->where('id_dokter', Auth::id());
+            })
+            ->findOrFail($request->id_daftar_poli);
 
-        $periksa = \Illuminate\Support\Facades\DB::transaction(function () use ($request, $obatIds) {
+        // Mencegah pemeriksaan ganda (idempotency check)
+        if ($daftarPoli->periksas()->exists()) {
+            return redirect()->route('periksa-pasien.index')
+                ->with('error', 'Pasien ini sudah selesai diperiksa sebelumnya.');
+        }
+
+        $obatIds = json_decode($request->obat_json, true) ?: [];
+        if (!is_array($obatIds)) {
+            $obatIds = [];
+        }
+
+        // Validasi ketersediaan stok obat
+        if (!empty($obatIds)) {
+            $outOfStock = Obat::whereIn('id', $obatIds)->where('stok', '<=', 0)->pluck('nama_obat')->toArray();
+            if (!empty($outOfStock)) {
+                return redirect()->back()
+                    ->with('error', 'Obat berikut saat ini habis stok: ' . implode(', ', $outOfStock))
+                    ->withInput();
+            }
+        }
+
+        // Keamanan: Hitung biaya secara server-side (Tarif dokter Rp 150.000 + Total Obat) untuk mencegah manipulasi client-side
+        $totalBiayaObat = !empty($obatIds) ? (int) Obat::whereIn('id', $obatIds)->sum('harga') : 0;
+        $totalBiayaPeriksa = 150000 + $totalBiayaObat;
+
+        $periksa = \Illuminate\Support\Facades\DB::transaction(function () use ($request, $obatIds, $totalBiayaPeriksa, $daftarPoli) {
             $periksa = Periksa::create([
-                'id_daftar_poli' => $request->id_daftar_poli,
+                'id_daftar_poli' => $daftarPoli->id,
                 'tgl_periksa' => now(),
                 'catatan' => $request->catatan,
-                'biaya_periksa' => $request->biaya_periksa + 150000,
+                'biaya_periksa' => $totalBiayaPeriksa,
             ]);
 
-            if (is_array($obatIds)) {
-                foreach ($obatIds as $idObat) {
-                    DetailPeriksa::create([
-                        'id_periksa' => $periksa->id,
-                        'id_obat' => $idObat,
-                    ]);
+            foreach ($obatIds as $idObat) {
+                DetailPeriksa::create([
+                    'id_periksa' => $periksa->id,
+                    'id_obat' => $idObat,
+                ]);
 
-                    // Kurangi stok obat otomatis
-                    $obat = Obat::find($idObat);
-                    if ($obat && $obat->stok > 0) {
-                        $obat->decrement('stok', 1);
-                    }
+                // Kurangi stok obat otomatis secara aman dengan row locking
+                $obat = Obat::where('id', $idObat)->lockForUpdate()->first();
+                if ($obat && $obat->stok > 0) {
+                    $obat->decrement('stok', 1);
                 }
             }
 
@@ -113,25 +156,22 @@ class PeriksaPasienController extends Controller
         });
 
         // Cari nomor antrean berikutnya yang belum diperiksa pada jadwal ini
-        $daftarPoli = DaftarPoli::with('jadwalPeriksa')->find($request->id_daftar_poli);
-        if ($daftarPoli) {
-            $nextNomor = DaftarPoli::where('id_jadwal', $daftarPoli->id_jadwal)
-                ->doesntHave('periksas')
-                ->orderBy('no_antrian', 'asc')
-                ->value('no_antrian');
+        $nextNomor = DaftarPoli::where('id_jadwal', $daftarPoli->id_jadwal)
+            ->doesntHave('periksas')
+            ->orderBy('no_antrian', 'asc')
+            ->value('no_antrian');
 
-            // Broadcast real-time update ke dashboard pasien via Reverb
-            AntrianUpdated::dispatchSafe(
-                $daftarPoli->id_jadwal,
-                $nextNomor ?? 'Selesai',
-                null,
-                null,
-                null,
-                null,
-                'selesai',
-                $daftarPoli->jadwalPeriksa?->id_dokter
-            );
-        }
+        // Broadcast real-time update ke dashboard pasien via Reverb
+        AntrianUpdated::dispatchSafe(
+            $daftarPoli->id_jadwal,
+            $nextNomor ?? 'Selesai',
+            null,
+            null,
+            null,
+            null,
+            'selesai',
+            $daftarPoli->jadwalPeriksa?->id_dokter
+        );
 
         return redirect()
             ->route('periksa-pasien.index')

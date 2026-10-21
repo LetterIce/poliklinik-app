@@ -50,6 +50,24 @@ class JadwalPeriksaController extends Controller
             'jam_selesai.after' => 'Jam selesai harus setelah jam mulai.',
         ]);
 
+        // Cek bentrok jam praktik (overlapping schedule) pada hari yang sama
+        $isOverlap = JadwalPeriksa::where('id_dokter', Auth::id())
+            ->where('hari', $request->hari)
+            ->where(function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->where('jam_mulai', '<', $request->jam_selesai)
+                        ->where('jam_selesai', '>', $request->jam_mulai);
+                });
+            })
+            ->exists();
+
+        if ($isOverlap) {
+            return redirect()
+                ->back()
+                ->with('error', 'Jadwal bertabrakan dengan jadwal praktik Anda yang lain pada hari ' . $request->hari . '.')
+                ->withInput();
+        }
+
         JadwalPeriksa::create([
             'id_dokter' => Auth::id(),
             'hari' => $request->hari,
@@ -96,6 +114,25 @@ class JadwalPeriksaController extends Controller
         ], [
             'jam_selesai.after' => 'Jam selesai harus setelah jam mulai.',
         ]);
+
+        // Cek bentrok jam praktik (overlapping schedule) selain jadwal ini
+        $isOverlap = JadwalPeriksa::where('id_dokter', Auth::id())
+            ->where('id', '!=', $jadwal->id)
+            ->where('hari', $request->hari)
+            ->where(function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->where('jam_mulai', '<', $request->jam_selesai)
+                        ->where('jam_selesai', '>', $request->jam_mulai);
+                });
+            })
+            ->exists();
+
+        if ($isOverlap) {
+            return redirect()
+                ->back()
+                ->with('error', 'Jadwal bertabrakan dengan jadwal praktik Anda yang lain pada hari ' . $request->hari . '.')
+                ->withInput();
+        }
 
         $jadwal->update([
             'hari' => $request->hari,
