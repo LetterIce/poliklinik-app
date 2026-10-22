@@ -6,11 +6,12 @@ on:
   pull_request:
     branches: [main]
 
-# Queue instead of cancelling: a half-finished run must never be left
-# behind, and the newest push still wins.
+# The verification is cheap and the newest commit is the only one worth
+# testing, so an older run is cancelled instead of queued behind it. The
+# deployment workflow has its own group and never cancels.
 concurrency:
   group: ci-poliklinik-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 # This workflow verifies only. The deployment lives in LetterIce/dev-yuan
 # (workflows/deploy-poliklinik.yml) because the self-hosted runner is
