@@ -46,9 +46,19 @@ jobs:
           # gitignored on purpose. The test suite runs against sqlite in
           # memory (see phpunit.xml), so only the key and a sane default
           # are needed.
-          cp .env .env.backup 2>/dev/null || true
-          touch .env
+          #
+          # The APP_KEY line has to exist before key:generate runs: with an
+          # empty .env the command prints an error and still exits 0, so
+          # the step would pass and the test would fail later with a
+          # MissingAppKeyException.
+          printf 'APP_KEY=\n' > .env
           php artisan key:generate --force
+          # key:generate exits 0 even when it could not set the key, so
+          # the value is verified instead of the exit code.
+          grep -qE '^APP_KEY=base64:.+' .env || {
+            echo "APP_KEY was not set" >&2
+            exit 1
+          }
 
       - name: Build frontend assets
         run: npm run build
