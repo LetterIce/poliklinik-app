@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Queue instead of cancelling: a half-finished deploy must never be left
+# behind, and the newest push still wins.
+concurrency:
+  group: ci-poliklinik-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify (tests + build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, fileinfo, curl, zip, gd, bcmath, intl, pdo, pdo_sqlite, sqlite3
+          coverage: none
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Install npm dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Prepare environment
+        run: |
+          # There is no .env.example in the repository, and .env is
+          # gitignored on purpose. The test suite runs against sqlite in
+          # memory (see phpunit.xml), so only the key and a sane default
+          # are needed.
+          cp .env .env.backup 2>/dev/null || true
+          touch .env
+          php artisan key:generate --force
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Run tests
+        run: php artisan test --colors=always
+
+      - name: Verify the production image builds
+        run: |
+          # The image is what actually runs in production, so the build
+          # itself is part of the verification. A broken Dockerfile must
+          # fail here, not on the VPS.
+          docker build -t poliklinik-app:ci .
+
+      - name: Assert the image carries a patched PHP
+        run: |
+          # CVE-2026-109618 / CVE-2026-109619 are fixed in PHP 8.4.27.
+          # The Dockerfile pulls PHP from Debian trixie-security, so the
+          # version is asserted here rather than trusted.
+          docker run --rm --entrypoint php poliklinik-app:ci -r '
+            echo PHP_VERSION, PHP_EOL;
+            if (version_compare(PHP_VERSION, "8.4.27", "<")) {
+              fwrite(STDERR, "PHP is older than 8.4.27: CVE-2026-109618/109619 are not fixed\n");
+              exit(1);
+            }
+          '
+
+  deploy:
+    name: Build & restart on VPS
+    runs-on: self-hosted
+    timeout-minutes: 30
+    # Gate: the deploy only happens when the verification passed.
+    needs: verify
+
+    steps:
+      - name: Stash the production .env
+        run: |
+          chmod +x .github/save-env.sh
+          .github/save-env.sh save
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # The checkout is a clean one, so the ignored .env would be
+          # deleted. The stash from the previous step is restored right
+          # after.
+          clean: true
+
+      - name: Restore the production .env
+        run: .github/save-env.sh restore
+
+      - name: Build image and restart
+        run: docker compose up -d --build
+
+      - name: Wait for healthcheck
+        run: |
+          for i in $(seq 1 40); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' poliklinik-app 2>/dev/null || true)
+            echo "attempt $i: ${status:-not-created}"
+            if [ "$status" = "healthy" ]; then exit 0; fi
+            sleep 3
+          done
+          echo "poliklinik-app never became healthy" >&2
+          docker ps -a --filter name=poliklinik-app
+          docker logs poliklinik-app --tail 100 || true
+          exit 1
+
+      - name: Smoke test
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:80/)
+          echo "GET / -> HTTP $code"
+          test "$code" = "200"
+
+      - name: Assert the deployed PHP is patched
+        run: |
+          # CVE-2026-109618 / CVE-2026-109619 are fixed in PHP 8.4.27.
+          # If the deploy produced an older runtime, the whole point of
+          # this workflow is lost, so it is checked rather than assumed.
+          ver=$(docker exec poliklinik-app php -r 'echo PHP_VERSION;')
+          echo "deployed PHP: $ver"
+          case "$ver" in
+            8.4.2[7-9]|8.4.[3-9][0-9]|8.5.*) ;;
+            *) echo "deployed PHP $ver is not patched for CVE-2026-109618/109619" >&2; exit 1 ;;
+          esac
