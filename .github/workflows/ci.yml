@@ -6,12 +6,16 @@ on:
   pull_request:
     branches: [main]
 
-# Queue instead of cancelling: a half-finished deploy must never be left
+# Queue instead of cancelling: a half-finished run must never be left
 # behind, and the newest push still wins.
 concurrency:
   group: ci-poliklinik-${{ github.ref }}
   cancel-in-progress: false
 
+# This workflow verifies only. The deployment lives in LetterIce/dev-yuan
+# (workflows/deploy-poliklinik.yml) because the self-hosted runner is
+# registered for that repository, and having two deploy paths for one
+# stack is how a stale image reaches production.
 jobs:
   verify:
     name: Verify (tests + build)
@@ -85,93 +89,3 @@ jobs:
               exit(1);
             }
           '
-
-  deploy:
-    name: Deploy to VPS
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    # Gate: the deploy only happens when the verification passed.
-    needs: verify
-    environment: production
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Set up SSH
-        env:
-          # A deploy key scoped to the VPS user, not to a person.
-          DEPLOY_KEY: ${{ secrets.VPS_DEPLOY_KEY }}
-          KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
-          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_deploy
-          chmod 600 ~/.ssh/id_deploy
-          chmod 600 ~/.ssh/known_hosts
-
-      - name: Deploy
-        run: |
-          set -euo pipefail
-          ssh -i ~/.ssh/id_deploy -o IdentitiesOnly=yes \
-              opc@129.221.221.21 'bash -s' <<'REMOTE'
-          set -euo pipefail
-          cd /home/opc/poliklinik-app
-
-          # The repository is owned by root while the deploy key logs in as
-          # opc, so git refuses to touch it without this exception.
-          git config --global --add safe.directory /home/opc/poliklinik-app
-
-          # .env is gitignored and holds the production secrets. It is
-          # stashed before the pull and restored after, so a git clean
-          # cannot take it away.
-          sh .github/save-env.sh save
-
-          git fetch origin
-          git checkout main
-          git pull --ff-only origin main
-
-          # A pull can drop the local security pins, so they are re-applied.
-          sh /home/opc/.security-patches/reapply-patches.sh || true
-
-          sh .github/save-env.sh restore
-
-          docker compose -p poliklinik-app up -d --build
-          REMOTE
-
-      - name: Wait for healthcheck
-        run: |
-          set -euo pipefail
-          ssh -i ~/.ssh/id_deploy -o IdentitiesOnly=yes \
-              opc@129.221.221.21 'bash -s' <<'REMOTE'
-          for i in $(seq 1 40); do
-            status=$(docker inspect --format '{{.State.Health.Status}}' poliklinik-app 2>/dev/null || true)
-            echo "attempt $i: ${status:-not-created}"
-            if [ "$status" = "healthy" ]; then exit 0; fi
-            sleep 3
-          done
-          echo "poliklinik-app never became healthy" >&2
-          docker ps -a --filter name=poliklinik-app
-          docker logs poliklinik-app --tail 100 || true
-          exit 1
-          REMOTE
-
-      - name: Smoke test and version assert
-        run: |
-          set -euo pipefail
-          ssh -i ~/.ssh/id_deploy -o IdentitiesOnly=yes \
-              opc@129.221.221.21 'bash -s' <<'REMOTE'
-          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:80/)
-          echo "GET / -> HTTP $code"
-          test "$code" = "200"
-
-          # CVE-2026-109618 / CVE-2026-109619 are fixed in PHP 8.4.27.
-          # If the deploy produced an older runtime, the whole point of
-          # this workflow is lost, so it is checked rather than assumed.
-          ver=$(docker exec poliklinik-app php -r 'echo PHP_VERSION;')
-          echo "deployed PHP: $ver"
-          case "$ver" in
-            8.4.2[7-9]|8.4.[3-9][0-9]|8.5.*) ;;
-            *) echo "deployed PHP $ver is not patched for CVE-2026-109618/109619" >&2; exit 1 ;;
-          esac
-          REMOTE
