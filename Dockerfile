@@ -19,37 +19,53 @@ RUN npm run build
 # ==========================================
 # 2. PHP-FPM Application Environment
 # ==========================================
-FROM php:8.4-fpm-bookworm
+# SECURITY: CVE-2026-109618 / CVE-2026-109619 (CVSS 4.0 9.2 CRITICAL)
+#   RCE via OOM corruption and stale global state in the PHP core engine.
+#   Patched in PHP 8.4.27 / 8.3.36 (released 2026-10-21).
+#   The official docker.io/library/php images did not publish an arm64
+#   manifest for 8.4.27 yet, so PHP comes from the Debian trixie-security
+#   repository, which ships php8.4 8.4.27-1~deb13u1 for arm64.
+FROM debian:trixie
 
 # Set working directory
 WORKDIR /var/www
 
-# Install system utilities and PHP extension installer
+# Install system utilities and the patched PHP 8.4.27 stack
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     unzip \
     libcap2-bin \
     default-mysql-client \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates \
+    php8.4-fpm \
+    php8.4-cli \
+    php8.4-mysql \
+    php8.4-bcmath \
+    php8.4-gd \
+    php8.4-zip \
+    php8.4-opcache \
+    php8.4-intl \
+    php8.4-curl \
+    php8.4-mbstring \
+    php8.4-xml \
+    php8.4-redis \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-alternatives --set php /usr/bin/php8.4 \
+    && update-alternatives --set phar /usr/bin/phar8.4 \
+    && update-alternatives --set phar.phar /usr/bin/phar.phar8.4
 
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod +x /usr/local/bin/install-php-extensions && \
-    install-php-extensions \
-        pdo_mysql \
-        bcmath \
-        gd \
-        zip \
-        pcntl \
-        redis \
-        opcache \
-        intl
+# php-fpm needs its config directory in place
+RUN mkdir -p /etc/php/8.4/fpm/pool.d /etc/php/8.4/fpm/conf.d \
+    && mkdir -p /run/php \
+    && chown www-data:www-data /run/php
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Copy custom PHP configuration
-COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/php/custom.ini /etc/php/8.4/fpm/conf.d/custom.ini
+COPY docker/php/fpm-override.conf /etc/php/8.4/fpm/pool.d/zz-override.conf
 
 # Copy entrypoint script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -74,4 +90,4 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
 EXPOSE 9000
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["php-fpm"]
+CMD ["php-fpm8.4", "-F"]

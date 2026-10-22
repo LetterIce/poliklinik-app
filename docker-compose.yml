@@ -95,7 +95,7 @@ services:
 
   # 6. phpMyAdmin (Opsional - akses via http://IP-VPS:8081)
   phpmyadmin:
-    image: phpmyadmin:latest
+    image: phpmyadmin:8.3.36-apache
     container_name: poliklinik-pma
     restart: unless-stopped
     ports:
