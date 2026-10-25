@@ -125,7 +125,7 @@
                             Tarif Jasa Dokter (Rp) <span class="text-red-500">*</span>
                         </label>
                         <input type="number" name="tarif" value="{{ old('tarif', $dokter->tarif ?? 150000) }}"
-                            placeholder="Contoh: 150000" min="0" step="1000" class="w-full px-4 py-2 rounded-lg 
+                            placeholder="Contoh: 150000" min="0" step="any" class="w-full px-4 py-2 rounded-lg 
                                       border-2 focus:border-primary focus:outline-none font-mono
                                       @error('tarif') border-red-500 @enderror" required>
                         @error('tarif')

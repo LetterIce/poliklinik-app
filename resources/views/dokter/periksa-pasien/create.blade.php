@@ -28,7 +28,7 @@
                     </label>
                     <div class="relative">
                         <span class="absolute left-4 top-2.5 text-sm font-semibold text-slate-400">Rp</span>
-                        <input type="number" name="biaya_dokter" id="biaya_dokter" min="0" step="1000"
+                        <input type="number" name="biaya_dokter" id="biaya_dokter" min="0" step="any"
                             value="{{ old('biaya_dokter', $biayaDokterDefault ?? 150000) }}"
                             class="w-full pl-12 pr-4 py-2.5 rounded-lg border border-slate-300 text-sm font-mono focus:border-primary focus:outline-none bg-white @error('biaya_dokter') border-red-500 @enderror"
                             placeholder="150000" required>

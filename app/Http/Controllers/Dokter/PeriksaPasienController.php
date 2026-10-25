@@ -95,6 +95,12 @@ class PeriksaPasienController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->has('biaya_dokter') && is_string($request->biaya_dokter)) {
+            $request->merge([
+                'biaya_dokter' => str_replace(['.', ',', ' '], '', $request->biaya_dokter),
+            ]);
+        }
+
         $request->validate([
             'id_daftar_poli' => 'required|exists:daftar_poli,id',
             'biaya_dokter' => 'nullable|numeric|min:0',

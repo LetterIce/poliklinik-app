@@ -31,12 +31,18 @@ class DokterController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->has('tarif') && is_string($request->tarif)) {
+            $request->merge([
+                'tarif' => str_replace(['.', ',', ' '], '', $request->tarif),
+            ]);
+        }
+
         $data = $request->validate([
             'nama' => 'required|string|max:255',
             'alamat' => 'required|string',
             'no_ktp' => 'required|string|max:16|unique:users,no_ktp',
             'no_hp' => 'required|string|max:15',
-            'id_poli' => 'required|string|exists:poli,id',
+            'id_poli' => 'required|exists:poli,id',
             'tarif' => 'nullable|numeric|min:0',
             'email' => 'required|string|unique:users,email',
             'password' => 'required|string|min:6',
@@ -67,12 +73,18 @@ class DokterController extends Controller
 
     public function update(Request $request, User $dokter)
     {
+        if ($request->has('tarif') && is_string($request->tarif)) {
+            $request->merge([
+                'tarif' => str_replace(['.', ',', ' '], '', $request->tarif),
+            ]);
+        }
+
         $request->validate([
             'nama' => 'required|string|max:255',
             'alamat' => 'required|string',
             'no_ktp' => 'required|string|max:16|unique:users,no_ktp,' . $dokter->id,
             'no_hp' => 'required|string|max:15',
-            'id_poli' => 'required|string|exists:poli,id',
+            'id_poli' => 'required|exists:poli,id',
             'tarif' => 'nullable|numeric|min:0',
             'email' => 'required|string|unique:users,email,' . $dokter->id,
             'password' => 'nullable|string|min:6',

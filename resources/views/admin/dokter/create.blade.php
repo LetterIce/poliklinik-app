@@ -136,7 +136,7 @@
                                 Tarif Jasa Dokter (Rp) <span class="text-red-500">*</span>
                             </span>
                         </label>
-                        <input type="number" name="tarif" value="{{ old('tarif', 150000) }}" placeholder="Contoh: 150000" min="0" step="1000"
+                        <input type="number" name="tarif" value="{{ old('tarif', 150000) }}" placeholder="Contoh: 150000" min="0" step="any"
                             class="input input-bordered border-2 rounded-lg p-2 w-full
                                       focus:ring-2 focus:ring-primary font-mono
                                       @error('tarif') input-error @enderror" required>

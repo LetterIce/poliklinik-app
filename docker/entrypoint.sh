@@ -23,5 +23,11 @@ if [ ! -L /var/www/public/storage ]; then
     php artisan storage:link --force || true
 fi
 
+# Run database migrations automatically for the main application container
+if [ "$1" = "php-fpm8.4" ] || [ "$1" = "php-fpm" ]; then
+    echo "Running database migrations..."
+    php artisan migrate --force || true
+fi
+
 # Run the provided command
 exec "$@"
