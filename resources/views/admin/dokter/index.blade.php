@@ -34,6 +34,7 @@
                             <th class="px-6 py-4">No. HP</th>
                             <th class="px-6 py-4">Alamat</th>
                             <th class="px-6 py-4">Poli</th>
+                            <th class="px-6 py-4">Tarif Jasa</th>
                             <th class="px-6 py-4 text-right">Aksi</th>
                         </tr>
                     </thead>
@@ -68,6 +69,10 @@
                                 <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
                                     {{ $dokter->poli->nama_poli ?? 'Belum Dipilih' }}
                                 </span>
+                            </td>
+
+                            <td class="px-6 py-4 font-mono font-semibold text-slate-800">
+                                Rp {{ number_format($dokter->tarif ?? 150000, 0, ',', '.') }}
                             </td>
 
                             <td class="px-6 py-4 text-right">

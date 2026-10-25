@@ -88,13 +88,16 @@ class PeriksaPasienController extends Controller
             $daftarPoli->jadwalPeriksa?->id_dokter
         );
 
-        return view('dokter.periksa-pasien.create', compact('obats', 'id', 'daftarPoli'));
+        $biayaDokterDefault = Auth::user()->tarif ?? 150000;
+
+        return view('dokter.periksa-pasien.create', compact('obats', 'id', 'daftarPoli', 'biayaDokterDefault'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'id_daftar_poli' => 'required|exists:daftar_poli,id',
+            'biaya_dokter' => 'nullable|numeric|min:0',
             'obat_json' => 'nullable',
             'catatan' => 'nullable|string|max:2000',
         ]);
@@ -127,15 +130,21 @@ class PeriksaPasienController extends Controller
             }
         }
 
-        // Keamanan: Hitung biaya secara server-side (Tarif dokter Rp 150.000 + Total Obat) untuk mencegah manipulasi client-side
-        $totalBiayaObat = !empty($obatIds) ? (int) Obat::whereIn('id', $obatIds)->sum('harga') : 0;
-        $totalBiayaPeriksa = 150000 + $totalBiayaObat;
+        // Biaya Dokter dinamis (dari input form dokter, profil dokter, atau default)
+        $biayaDokter = $request->filled('biaya_dokter')
+            ? (int) $request->biaya_dokter
+            : (int) (Auth::user()->tarif ?? 150000);
 
-        $periksa = \Illuminate\Support\Facades\DB::transaction(function () use ($request, $obatIds, $totalBiayaPeriksa, $daftarPoli) {
+        // Keamanan: Hitung biaya secara server-side (Tarif dokter + Total Obat) untuk mencegah manipulasi client-side
+        $totalBiayaObat = !empty($obatIds) ? (int) Obat::whereIn('id', $obatIds)->sum('harga') : 0;
+        $totalBiayaPeriksa = $biayaDokter + $totalBiayaObat;
+
+        $periksa = \Illuminate\Support\Facades\DB::transaction(function () use ($request, $obatIds, $biayaDokter, $totalBiayaPeriksa, $daftarPoli) {
             $periksa = Periksa::create([
                 'id_daftar_poli' => $daftarPoli->id,
                 'tgl_periksa' => now(),
                 'catatan' => $request->catatan,
+                'biaya_dokter' => $biayaDokter,
                 'biaya_periksa' => $totalBiayaPeriksa,
             ]);
 

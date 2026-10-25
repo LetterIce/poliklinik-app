@@ -204,7 +204,7 @@
                     {{-- Jasa Dokter --}}
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-slate-500">Jasa Pemeriksaan Dokter</span>
-                        <span class="font-semibold text-slate-700 font-mono">Rp 150.000</span>
+                        <span class="font-semibold text-slate-700 font-mono">Rp {{ number_format($periksa->biaya_dokter, 0, ',', '.') }}</span>
                     </div>
 
                     {{-- Biaya Obat --}}

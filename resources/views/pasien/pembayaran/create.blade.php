@@ -110,12 +110,14 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">Jasa Dokter:</span>
-                        <span class="font-mono text-slate-700 font-semibold">Rp 150.000</span>
+                        <span class="font-mono text-slate-700 font-semibold">
+                            Rp {{ number_format($periksa->biaya_dokter, 0, ',', '.') }}
+                        </span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-slate-500">Resep Obat ({{ $periksa->detailPeriksas ? $periksa->detailPeriksas->count() : 0 }}):</span>
                         <span class="font-mono text-slate-700 font-semibold">
-                            Rp {{ number_format(max(0, $periksa->biaya_periksa - 150000), 0, ',', '.') }}
+                            Rp {{ number_format($periksa->total_biaya_obat, 0, ',', '.') }}
                         </span>
                     </div>
                 </div>

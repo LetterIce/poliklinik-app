@@ -37,6 +37,7 @@ class DokterController extends Controller
             'no_ktp' => 'required|string|max:16|unique:users,no_ktp',
             'no_hp' => 'required|string|max:15',
             'id_poli' => 'required|string|exists:poli,id',
+            'tarif' => 'nullable|numeric|min:0',
             'email' => 'required|string|unique:users,email',
             'password' => 'required|string|min:6',
         ]);
@@ -47,6 +48,7 @@ class DokterController extends Controller
             'no_ktp' => $request->no_ktp,
             'no_hp' => $request->no_hp,
             'id_poli' => $request->id_poli,
+            'tarif' => $request->tarif ?? 150000,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'dokter',
@@ -71,6 +73,7 @@ class DokterController extends Controller
             'no_ktp' => 'required|string|max:16|unique:users,no_ktp,' . $dokter->id,
             'no_hp' => 'required|string|max:15',
             'id_poli' => 'required|string|exists:poli,id',
+            'tarif' => 'nullable|numeric|min:0',
             'email' => 'required|string|unique:users,email,' . $dokter->id,
             'password' => 'nullable|string|min:6',
         ]);
@@ -81,6 +84,7 @@ class DokterController extends Controller
             'no_ktp' => $request->no_ktp,
             'no_hp' => $request->no_hp,
             'id_poli' => $request->id_poli,
+            'tarif' => $request->tarif ?? 150000,
             'email' => $request->email,
         ];
 

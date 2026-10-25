@@ -21,6 +21,24 @@
                 <input type="hidden" name="obat_json" id="obat_json" value="[]">
                 <input type="hidden" name="biaya_periksa" id="biaya_periksa" value="0">
 
+                {{-- Biaya Jasa Dokter --}}
+                <div class="mb-5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Biaya Jasa Dokter / Pemeriksaan <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-2.5 text-sm font-semibold text-slate-400">Rp</span>
+                        <input type="number" name="biaya_dokter" id="biaya_dokter" min="0" step="1000"
+                            value="{{ old('biaya_dokter', $biayaDokterDefault ?? 150000) }}"
+                            class="w-full pl-12 pr-4 py-2.5 rounded-lg border border-slate-300 text-sm font-mono focus:border-primary focus:outline-none bg-white @error('biaya_dokter') border-red-500 @enderror"
+                            placeholder="150000" required>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">Tarif dasar dokter otomatis dimuat dan dapat disesuaikan jika ada tindakan khusus.</p>
+                    @error('biaya_dokter')
+                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 {{-- Pilih Obat --}}
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
@@ -60,13 +78,19 @@
                     </div>
                 </div>
 
-                {{-- Total Harga --}}
-                <div class="mb-6">
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Total Harga
-                    </label>
-                    <div class="w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-800 font-mono" id="labelTotalHarga">
-                        Rp 0
+                {{-- Rincian & Total Tagihan --}}
+                <div class="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <div class="flex justify-between text-xs text-slate-600">
+                        <span>Biaya Dokter:</span>
+                        <span id="labelBiayaDokter" class="font-mono font-semibold">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-600">
+                        <span>Subtotal Obat:</span>
+                        <span id="labelBiayaObat" class="font-mono font-semibold">Rp 0</span>
+                    </div>
+                    <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
+                        <span class="text-sm font-bold text-slate-800">Total Biaya Pemeriksaan:</span>
+                        <span id="labelTotalHarga" class="text-base font-black text-primary font-mono">Rp 0</span>
                     </div>
                 </div>
 
@@ -111,6 +135,10 @@
             const inputBiayaPeriksa = document.getElementById('biaya_periksa');
             const labelTotalHarga = document.getElementById('labelTotalHarga');
 
+            const inputBiayaDokter = document.getElementById('biaya_dokter');
+            const labelBiayaDokter = document.getElementById('labelBiayaDokter');
+            const labelBiayaObat = document.getElementById('labelBiayaObat');
+
             let selectedObats = []; // { id, nama, harga }
 
             function formatRupiah(number) {
@@ -142,12 +170,23 @@
                 }
 
                 const totalObat = selectedObats.reduce((sum, item) => sum + item.harga, 0);
+                const biayaDokter = parseInt(inputBiayaDokter.value) || 0;
+                const totalBiaya = biayaDokter + totalObat;
                 const obatIds = selectedObats.map(item => item.id);
 
                 inputObatJson.value = JSON.stringify(obatIds);
-                inputBiayaPeriksa.value = totalObat;
-                labelTotalHarga.textContent = formatRupiah(totalObat);
+                inputBiayaPeriksa.value = totalBiaya;
+                labelBiayaDokter.textContent = formatRupiah(biayaDokter);
+                labelBiayaObat.textContent = formatRupiah(totalObat);
+                labelTotalHarga.textContent = formatRupiah(totalBiaya);
             }
+
+            if (inputBiayaDokter) {
+                inputBiayaDokter.addEventListener('input', updateUI);
+            }
+
+            // Inisialisasi hitungan awal
+            updateUI();
 
             function hapusObat(index) {
                 selectedObats.splice(index, 1);

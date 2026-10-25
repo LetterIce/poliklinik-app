@@ -95,25 +95,44 @@
                     @enderror
                 </div>
 
-                {{-- Poli --}}
-                <div class="mb-6">
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">
-                        Poli <span class="text-red-500">*</span>
-                    </label>
-                    <select name="id_poli" class="w-full px-4 py-2 rounded-lg 
-                                   border-2 focus:border-primary focus:outline-none
-                                   @error('id_poli') border-red-500 @enderror" required>
-                        <option value="">Pilih Poli</option>
-                        @foreach($polis as $poli)
-                        <option value="{{ $poli->id }}" {{ (string) old('id_poli', $dokter->id_poli) === (string)
-                            $poli->id ? 'selected' : '' }}>
-                            {{ $poli->nama_poli }}
-                        </option>
-                        @endforeach
-                    </select>
-                    @error('id_poli')
-                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
+                {{-- Grid Poli & Tarif --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+                    {{-- Poli --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">
+                            Poli <span class="text-red-500">*</span>
+                        </label>
+                        <select name="id_poli" class="w-full px-4 py-2 rounded-lg 
+                                       border-2 focus:border-primary focus:outline-none
+                                       @error('id_poli') border-red-500 @enderror" required>
+                            <option value="">Pilih Poli</option>
+                            @foreach($polis as $poli)
+                            <option value="{{ $poli->id }}" {{ (string) old('id_poli', $dokter->id_poli) === (string)
+                                $poli->id ? 'selected' : '' }}>
+                                {{ $poli->nama_poli }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('id_poli')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Tarif Jasa Dokter --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">
+                            Tarif Jasa Dokter (Rp) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" name="tarif" value="{{ old('tarif', $dokter->tarif ?? 150000) }}"
+                            placeholder="Contoh: 150000" min="0" step="1000" class="w-full px-4 py-2 rounded-lg 
+                                      border-2 focus:border-primary focus:outline-none font-mono
+                                      @error('tarif') border-red-500 @enderror" required>
+                        @error('tarif')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                 </div>
 
                 {{-- Password --}}

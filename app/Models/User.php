@@ -26,6 +26,7 @@ class User extends Authenticatable
         'no_rm',
         'role',
         'id_poli',
+        'tarif',
         'email',
         'password'
     ];
