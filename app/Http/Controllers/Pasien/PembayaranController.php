@@ -15,7 +15,7 @@ class PembayaranController extends Controller
     /**
      * Tampilkan riwayat pemeriksaan pasien yang perlu atau sudah dibayar
      */
-    public function index()
+    public function index(\App\Services\MidtransService $midtransService)
     {
         $pasienId = Auth::id();
 
@@ -27,6 +27,13 @@ class PembayaranController extends Controller
             'detailPeriksas.obat',
             'pembayaran'
         ])->latest('tgl_periksa')->get();
+
+        // Auto-sinkronisasi status Midtrans untuk transaksi yang masih menunggu_verifikasi
+        foreach ($periksas as $periksa) {
+            if ($periksa->pembayaran && $periksa->pembayaran->order_id && $periksa->pembayaran->status === 'menunggu_verifikasi') {
+                $midtransService->checkAndUpdateStatus($periksa->pembayaran);
+            }
+        }
 
         return view('pasien.pembayaran.index', compact('periksas'));
     }
@@ -138,6 +145,36 @@ class PembayaranController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Endpoint API untuk memverifikasi status pembayaran Midtrans secara langsung
+     */
+    public function cekStatus($idPeriksa, \App\Services\MidtransService $midtransService)
+    {
+        $pasienId = Auth::id();
+
+        $periksa = Periksa::whereHas('daftarPoli', function ($q) use ($pasienId) {
+            $q->where('id_pasien', $pasienId);
+        })->with('pembayaran')->findOrFail($idPeriksa);
+
+        if (!$periksa->pembayaran || !$periksa->pembayaran->order_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Transaksi pembayaran belum dibuat.'
+            ], 404);
+        }
+
+        $newStatus = $midtransService->checkAndUpdateStatus($periksa->pembayaran);
+
+        return response()->json([
+            'status' => 'success',
+            'payment_status' => $newStatus,
+            'is_lunas' => ($newStatus === 'lunas'),
+            'message' => ($newStatus === 'lunas')
+                ? 'Pembayaran berhasil diverifikasi LUNAS!'
+                : 'Status transaksi: ' . ($newStatus ?? 'menunggu pembayaran')
+        ]);
     }
 }
 

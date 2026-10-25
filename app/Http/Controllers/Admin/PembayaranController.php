@@ -13,9 +13,19 @@ class PembayaranController extends Controller
     /**
      * Tampilkan daftar seluruh pembayaran pasien untuk Admin
      */
-    public function index(Request $request)
+    public function index(Request $request, \App\Services\MidtransService $midtransService)
     {
         $status = $request->get('status');
+
+        // Auto-sinkronisasi pembayaran Midtrans yang masih berstatus menunggu_verifikasi
+        $pendingMidtrans = Pembayaran::where('status', 'menunggu_verifikasi')
+            ->whereNotNull('order_id')
+            ->take(10)
+            ->get();
+
+        foreach ($pendingMidtrans as $p) {
+            $midtransService->checkAndUpdateStatus($p);
+        }
 
         $query = Pembayaran::with([
             'pasien',

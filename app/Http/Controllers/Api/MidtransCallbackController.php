@@ -123,7 +123,11 @@ class MidtransCallbackController extends Controller
         // Kirim notifikasi lunas ke pasien
         $pasien = $pembayaran->pasien;
         if ($pasien) {
-            $pasien->notify(new PembayaranDiverifikasiNotification($pembayaran));
+            try {
+                $pasien->notify(new PembayaranDiverifikasiNotification($pembayaran));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal kirim notifikasi lunas ke pasien: ' . $e->getMessage());
+            }
         }
 
         Log::info("Pembayaran Order ID {$pembayaran->order_id} berhasil diupdate menjadi LUNAS via Midtrans.");

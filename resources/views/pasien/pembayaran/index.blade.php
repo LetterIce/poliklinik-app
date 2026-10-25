@@ -134,6 +134,15 @@
                                     </div>
                                 @elseif($pembayaran->status === 'menunggu_verifikasi')
                                     <div class="flex items-center justify-end gap-2">
+                                        @if($pembayaran->order_id)
+                                        <button type="button"
+                                            onclick="checkPaymentStatus({{ $periksa->id }})"
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-semibold border border-emerald-200 transition cursor-pointer"
+                                            title="Verifikasi status langsung ke server Midtrans">
+                                            <i class="fas fa-arrows-rotate text-xs"></i>
+                                            <span>Cek Status</span>
+                                        </button>
+                                        @endif
                                         @if($pembayaran->snap_token)
                                         <button type="button"
                                             id="btn-midtrans-{{ $periksa->id }}"
@@ -181,6 +190,50 @@
 
     {{-- Script Integrasi Midtrans Snap --}}
     <script>
+        function checkPaymentStatus(periksaId) {
+            Swal.fire({
+                title: 'Memverifikasi Pembayaran...',
+                text: 'Menghubungi server Midtrans untuk mengecek status transaksi terbaru...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('/pasien/pembayaran/' + periksaId + '/cek-status', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.is_lunas) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pembayaran LUNAS!',
+                        text: 'Terima kasih, pembayaran Anda telah berhasil diverifikasi otomatis oleh Midtrans.',
+                        confirmButtonColor: '#2d4499'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Status Pembayaran',
+                        text: data.message || 'Pembayaran masih diproses oleh Midtrans.',
+                        confirmButtonColor: '#2d4499'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            })
+            .catch(err => {
+                window.location.reload();
+            });
+        }
+
         function payWithMidtrans(periksaId) {
             const btn = document.getElementById('btn-midtrans-' + periksaId);
             const originalContent = btn ? btn.innerHTML : '';
@@ -224,14 +277,8 @@
 
                     window.snap.pay(data.snap_token, {
                         onSuccess: function(result) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Pembayaran Berhasil!',
-                                text: 'Pembayaran Anda telah diterima. Sistem sedang memperbarui status transaksi Anda.',
-                                confirmButtonColor: '#2d4499'
-                            }).then(() => {
-                                window.location.reload();
-                            });
+                            // Segera verifikasi status ke server Midtrans secara otomatis
+                            checkPaymentStatus(periksaId);
                         },
                         onPending: function(result) {
                             Swal.fire({

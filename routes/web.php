@@ -108,8 +108,13 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () 
     Route::get('/pembayaran/{id}/upload', [PasienPembayaranController::class, 'create'])->name('pasien.pembayaran.create');
     Route::post('/pembayaran/{id}/upload', [PasienPembayaranController::class, 'store'])->name('pasien.pembayaran.store');
     Route::post('/pembayaran/{id}/snap-token', [PasienPembayaranController::class, 'getSnapToken'])->name('pasien.pembayaran.snap-token');
+    Route::post('/pembayaran/{id}/cek-status', [PasienPembayaranController::class, 'cekStatus'])->name('pasien.pembayaran.cek-status');
 });
 
-// ================= MIDTRANS WEBHOOK CALLBACK =================
+// ================= MIDTRANS WEBHOOK CALLBACK (Mendukung Semua Format URL) =================
 Route::match(['get', 'post'], '/api/midtrans-callback', [\App\Http\Controllers\Api\MidtransCallbackController::class, 'handle'])->name('midtrans.callback');
+Route::match(['get', 'post'], '/api/midtrans', [\App\Http\Controllers\Api\MidtransCallbackController::class, 'handle']);
+Route::match(['get', 'post'], '/api/midtrans/callback', [\App\Http\Controllers\Api\MidtransCallbackController::class, 'handle']);
 Route::match(['get', 'post'], '/midtrans-callback', [\App\Http\Controllers\Api\MidtransCallbackController::class, 'handle']);
+Route::match(['get', 'post'], '/midtrans', [\App\Http\Controllers\Api\MidtransCallbackController::class, 'handle']);
+Route::match(['get', 'post'], '/midtrans/callback', [\App\Http\Controllers\Api\MidtransCallbackController::class, 'handle']);
